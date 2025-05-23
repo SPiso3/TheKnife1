@@ -1,0 +1,23 @@
+DO $$
+BEGIN
+IF NOT EXISTS (
+	SELECT 1
+	FROM pg_type
+	WHERE typname = 'role_type')
+THEN
+	CREATE TYPE ROLE_TYPE AS ENUM ('owner', 'client');
+END IF;
+
+CREATE TABLE IF NOT EXISTS Users (
+	username VARCHAR(100) PRIMARY KEY,
+	h_password VARCHAR(255) NOT NULL,
+	name VARCHAR(100) NOT NULL,
+	surname VARCHAR(100) NOT NULL,
+	birth_date DATE CHECK ( birth_date BETWEEN (CURRENT_DATE - INTERVAL '150 years') AND CURRENT_DATE ),
+	role ROLE_TYPE NOT NULL,
+	address_id SERIAL REFERENCES Addresses(address_id)
+		ON UPDATE CASCADE
+		ON DELETE NO ACTION
+	);
+END
+$$;

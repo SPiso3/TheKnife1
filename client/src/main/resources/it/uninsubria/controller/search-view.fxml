@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="700.0" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.uninsubria.controller.SearchController">
+    <children>
+        <VBox spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <!-- Top Bar with Logo and Navigation -->
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                    <children>
+                        <Label text="TheKnife" textFill="#1a73e8">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                        <Label text="Restaurant Search">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button fx:id="userAreaButton" mnemonicParsing="false" onAction="#handleUserArea" text="My Area" />
+                                <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                    </padding>
+                </HBox>
+
+                <!-- Current Location Display -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <Label text="Your Location:">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="locationLabel" text="Loading coordinates...">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                    </children>
+                    <padding>
+                        <Insets left="20.0" right="20.0" />
+                    </padding>
+                </HBox>
+
+                <!-- Main Content Area -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <!-- Search Criteria Panel -->
+                        <VBox spacing="15.0" HBox.hgrow="SOMETIMES">
+                            <children>
+                                <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="Search Criteria" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox spacing="15.0">
+                                            <children>
+                                                <!-- Cuisine Type -->
+                                                <VBox spacing="5.0">
+                                                    <children>
+                                                        <Label text="Cuisine Type">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <ComboBox fx:id="cuisineTypeComboBox" maxWidth="1.7976931348623157E308" promptText="Select cuisine type" />
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Price Range -->
+                                                <VBox spacing="5.0">
+                                                    <children>
+                                                        <Label text="Price Range">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <HBox alignment="CENTER" spacing="10.0">
+                                                            <children>
+                                                                <Label text="Min:" />
+                                                                <Slider fx:id="minPriceSlider" blockIncrement="10.0" majorTickUnit="50.0" max="300.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS" />
+                                                                <TextField fx:id="minPriceField" prefWidth="60.0" text="0" />
+                                                                <Label text="€" />
+                                                            </children>
+                                                        </HBox>
+                                                        <HBox alignment="CENTER" spacing="10.0">
+                                                            <children>
+                                                                <Label text="Max:" />
+                                                                <Slider fx:id="maxPriceSlider" blockIncrement="10.0" majorTickUnit="50.0" max="300.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="300.0" HBox.hgrow="ALWAYS" />
+                                                                <TextField fx:id="maxPriceField" prefWidth="60.0" text="300" />
+                                                                <Label text="€" />
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Services -->
+                                                <VBox spacing="5.0">
+                                                    <children>
+                                                        <Label text="Services">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <CheckBox fx:id="deliveryCheckBox" mnemonicParsing="false" text="Delivery Available" />
+                                                        <CheckBox fx:id="onlineBookingCheckBox" mnemonicParsing="false" text="Online Booking Available" />
+                                                    </children>
+                                                </VBox>
+
+                                                <!-- Minimum Rating -->
+                                                <VBox spacing="5.0">
+                                                    <children>
+                                                        <Label text="Minimum Rating">
+                                                            <font>
+                                                                <Font name="System Bold" size="14.0" />
+                                                            </font>
+                                                        </Label>
+                                                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                                                            <children>
+                                                                <ToggleButton fx:id="star1Button" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" selected="true" text="★" />
+                                                                <ToggleButton fx:id="star2Button" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="★" />
+                                                                <ToggleButton fx:id="star3Button" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="★" />
+                                                                <ToggleButton fx:id="star4Button" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="★" />
+                                                                <ToggleButton fx:id="star5Button" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" text="★" />
+                                                                <Label fx:id="ratingLabel" text="1.0+ stars">
+                                                                    <padding>
+                                                                        <Insets left="10.0" />
+                                                                    </padding>
+                                                                </Label>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+
+                                                <Separator />
+
+                                                <!-- Search Button -->
+                                                <Button fx:id="searchButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleSearch" prefHeight="40.0" text="Search Restaurants">
+                                                    <font>
+                                                        <Font name="System Bold" size="14.0" />
+                                                    </font>
+                                                </Button>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                            </padding>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </VBox>
+
+                        <!-- Status Panel (Could be replaced with results later) -->
+                        <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <TitledPane animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="Ready to Search" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox alignment="CENTER" spacing="20.0">
+                                            <children>
+                                                <Label text="Set your search criteria and click 'Search Restaurants'">
+                                                    <font>
+                                                        <Font size="14.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label text="★ ★ ★ ★ ★">
+                                                    <font>
+                                                        <Font name="System Bold" size="36.0" />
+                                                    </font>
+                                                </Label>
+                                                <Label text="Find the best restaurants near you">
+                                                    <font>
+                                                        <Font size="14.0" />
+                                                    </font>
+                                                </Label>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                            </padding>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+                    </padding>
+                </HBox>
+
+                <!-- Status Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+                    <children>
+                        <Label fx:id="statusLabel" text="Ready" />
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

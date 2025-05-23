@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>it.uninsubria</groupId>
+        <artifactId>TheKnife</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>server</artifactId>
+    <packaging>jar</packaging>
+
+    <name>server</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>2.11</version>
+        </dependency>
+        <dependency>
+            <groupId>it.uninsubria</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <version>1.5</version>
+                <dependencies>
+                    <!-- PostgreSQL JDBC Driver as plugin dependency -->
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>42.7.5</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <!-- Default connection configuration (for admin operations) -->
+                    <driver>org.postgresql.Driver</driver>
+                    <url>jdbc:postgresql://localhost:5432/postgres</url>
+                    <username>postgres</username>
+                    <password>postgres</password> <!-- Change to your postgres admin password -->
+                    <autocommit>true</autocommit>
+                </configuration>
+                <executions>
+                    <!-- Create user and databse -->
+                    <execution>
+                        <id>create-db-and-user</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <srcFiles>
+                                <srcFile>src/main/resources/db/create_database.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <!-- Create tables -->
+                    <execution>
+                        <id>create-tables</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <url>jdbc:postgresql://localhost:5432/theknife_db</url>
+                            <username>theknife</username>
+                            <password>password</password>
+                            <srcFiles>
+                                <srcFile>src/main/resources/db/tables/addresses.sql</srcFile>
+                                <srcFile>src/main/resources/db/tables/users.sql</srcFile>
+                                <srcFile>src/main/resources/db/tables/restaurants.sql</srcFile>
+                                <srcFile>src/main/resources/db/tables/favorites.sql</srcFile>
+                                <srcFile>src/main/resources/db/tables/reviews.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <!-- Populate tables -->
+                    <execution>
+                        <id>populate-tables</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <url>jdbc:postgresql://localhost:5432/theknife_db</url>
+                            <username>theknife</username>
+                            <password>password</password>
+                            <srcFiles>
+                                <srcFile>src/main/resources/db/samples/ex_addresses.sql</srcFile>
+                                <srcFile>src/main/resources/db/samples/ex_users.sql</srcFile>
+                                <srcFile>src/main/resources/db/samples/ex_restaurants.sql</srcFile>
+                                <srcFile>src/main/resources/db/samples/ex_favorites.sql</srcFile>
+                                <srcFile>src/main/resources/db/samples/ex_reviews.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

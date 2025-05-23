@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="700.0" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.uninsubria.controller.RegistrationController">
+    <children>
+        <VBox alignment="TOP_CENTER" layoutX="100.0" layoutY="50.0" spacing="15.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="50.0">
+            <children>
+                <Label text="Register to TheKnife">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+
+                <Label text="Create a new account to enjoy all the features of TheKnife">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+
+                <Separator prefWidth="200.0">
+                    <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                    </VBox.margin>
+                </Separator>
+
+                <GridPane hgap="15.0" vgap="15.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="130.0" prefWidth="150.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <!-- Account Information -->
+                        <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="usernameField" promptText="Enter username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <PasswordField fx:id="passwordField" promptText="Enter password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <!-- Personal Information -->
+                        <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="nameField" promptText="Enter your first name" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Surname:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <TextField fx:id="surnameField" promptText="Enter your last name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                        <!-- Birth Date -->
+                        <Label text="Birth Date:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                            <children>
+                                <ComboBox fx:id="dayComboBox" prefWidth="80.0" promptText="Day" />
+                                <ComboBox fx:id="monthComboBox" prefWidth="100.0" promptText="Month" />
+                                <ComboBox fx:id="yearComboBox" prefWidth="100.0" promptText="Year" />
+                            </children>
+                        </HBox>
+
+                        <!-- Location Information -->
+                        <Label text="Country:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                        <TextField fx:id="countryField" promptText="Enter country" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                        <Label text="City:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                        <TextField fx:id="cityField" promptText="Enter city" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                        <Label text="Address:" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                        <TextField fx:id="addressField" promptText="Enter street address" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+                        <Label text="Latitude:" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                        <TextField fx:id="latitudeField" promptText="Enter latitude (e.g. 45.8183)" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+
+                        <Label text="Longitude:" GridPane.columnIndex="0" GridPane.rowIndex="9" />
+                        <TextField fx:id="longitudeField" promptText="Enter longitude (e.g. 8.8239)" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                    </children>
+                </GridPane>
+
+                <!-- User Type Selection -->
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <Label text="Register as:">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <RadioButton fx:id="clientRadioButton" mnemonicParsing="false" selected="true" text="Client">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="userTypeGroup" />
+                            </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="restaurateurRadioButton" mnemonicParsing="false" text="Restaurateur" toggleGroup="$userTypeGroup" />
+                    </children>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </HBox>
+
+                <!-- Error Message -->
+                <Label fx:id="errorLabel" textFill="RED">
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
+                </Label>
+
+                <!-- Buttons -->
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" prefHeight="40.0" prefWidth="150.0" text="Back to Login" />
+                        <Button fx:id="registerButton" defaultButton="true" mnemonicParsing="false" onAction="#handleRegister" prefHeight="40.0" prefWidth="150.0" text="Register" />
+                    </children>
+                    <VBox.margin>
+                        <Insets top="20.0" />
+                    </VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
