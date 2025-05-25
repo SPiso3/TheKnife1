@@ -19,6 +19,15 @@ public enum UserRoleDTO implements Serializable {
         this.displayName = displayName;
     }
 
+    public static UserRoleDTO fromDisplayName(String roleString) {
+        for (UserRoleDTO role : values()) {
+            if (role.getDisplayName().equalsIgnoreCase(roleString)) {
+                return role;
+            }
+        }
+        return null;
+    }
+
     /**
      * Gets the display name of the user role.
      *

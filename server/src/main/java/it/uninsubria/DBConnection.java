@@ -36,6 +36,18 @@ public class DBConnection {
         System.out.println("Database connection established");
     }
     /**
+     * Gets the singleton database connection instance.
+     *
+     * @return The database connection, or null if not yet established
+     * @throws IllegalStateException if connection has not been established via login()
+     */
+    public static synchronized Connection getConnection() {
+        if (connection == null) {
+            throw new IllegalStateException("Database connection not established. Call login() first.");
+        }
+        return connection;
+    }
+    /**
      * Method to attempt to connect to the database
      * @param connector DBConnector object
      */

@@ -1,24 +1,54 @@
 package it.uninsubria.server_services;
 
+import it.uninsubria.DBConnection;
 import it.uninsubria.dto.AddressDTO;
 import it.uninsubria.dto.UserDTO;
+import it.uninsubria.dao.UserDAO;
 import it.uninsubria.exceptions.AddressException;
 import it.uninsubria.services.UserService;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends UnicastRemoteObject implements UserService {
+
     private final Connection conn;
-    public UserServiceImpl(Connection conn) {
-        this.conn = conn;
+    // non c'è bisogno di passare la connection, per le mie cose l'ho gestita tutta dai DAO.
+    public UserServiceImpl() throws RemoteException {
+        this.conn = DBConnection.getConnection();
     }
+
+    /**
+     * Authenticates a user with the provided credentials.
+     *
+     * @param credentials UserDTO containing username and password
+     * @return UserDTO with user information if authentication successful
+     * @throws RemoteException If a remote communication error occurs
+     * @throws SecurityException If credentials are invalid (user not found or wrong password)
+     */
     @Override
-    public UserDTO login(UserDTO credentials) throws RemoteException, SecurityException {
-        return null;
+    public synchronized UserDTO login(UserDTO credentials) throws RemoteException, SecurityException {
+        String usr = credentials.getUsername();
+        String psw = credentials.getPassword();
+        // Get user from database
+        UserDTO userRecord = UserDAO.getUserByID(usr);
+        // Check if user exists
+        if (userRecord == null) {
+            System.err.println("Login attempt failed: User not found - " + usr);
+            throw new SecurityException("Invalid credentials");
+        }
+        // Check password
+        if (!userRecord.getPassword().equals(psw)) {
+            System.err.println("Login attempt failed: Wrong password for user - " + usr);
+            throw new SecurityException("Invalid credentials");
+        }
+        // Authentication successful
+        System.out.println("User successfully logged in: " + usr);
+        return userRecord;
     }
 
     @Override

@@ -14,15 +14,15 @@ public class UserDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public String usr_id;
-    public String password_pt;
-    public String name;
-    public String surname;
-    public AddressDTO address;
-    public Double latitude;
-    public Double longitude;
-    public Date bd;
-    public UserRoleDTO role;
+    private String usr_id;
+    private String password_pt;
+    private String name;
+    private String surname;
+    private AddressDTO address;
+    private Double latitude;
+    private Double longitude;
+    private Date bd;
+    private UserRoleDTO role;
 
     /**
      * Default constructor.
@@ -74,7 +74,32 @@ public class UserDTO implements Serializable {
         this.bd = bd;
         this.role = UserRoleDTO.valueOf(role.toUpperCase());
     }
-
+    /**
+     * Addressless constructor, currently used from server to store user. Might remove if useless.
+     *
+     * @param usr_id User's unique identifier
+     * @param password_pt User's password
+     * @param name User's first name
+     * @param surname User's last name
+     * @param latitude User's latitude location
+     * @param longitude User's longitude location
+     * @param bd User's birthdate (can be null)
+     * @param role User's role (client/owner)
+     *
+     * @author Sergio Enrico Pisoni, 755563, VA
+     */
+    public UserDTO(String usr_id, String password_pt, String name, String surname,
+                   Double latitude, Double longitude,
+                   Date bd, UserRoleDTO role) {
+        this.usr_id = usr_id;
+        this.password_pt = password_pt;
+        this.name = name;
+        this.surname = surname;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.bd = bd;
+        this.role = role;
+    }
     /**
      * Constructor with only latitude and longitude used for guests handling in the client.
      *
@@ -95,7 +120,7 @@ public class UserDTO implements Serializable {
                 ", password_pt='" + password_pt + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
-                address + '\'' +
+                // address + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 // ", bd=" + bd +
@@ -110,6 +135,11 @@ public class UserDTO implements Serializable {
     public String getUsername() {
         return usr_id;
     }
+    /**
+     * Get password.
+     * @return username
+     */
+    public String getPassword() { return password_pt;}
     /**
      * Get name.
      * @return name
@@ -181,4 +211,5 @@ public class UserDTO implements Serializable {
     public String getStreet() {
         return this.address.getStreet();
     }
+
 }

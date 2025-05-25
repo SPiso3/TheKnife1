@@ -39,16 +39,16 @@ public class DTOTestSuite extends TestCase {
                 "Italy", "Varese", "123 Main St",
                 45.8183, 8.8239, birthDate, "client");
 
-        assertEquals("User ID should match", userId, testUser.usr_id);
-        assertEquals("Password should match", password, testUser.password_pt);
-        assertEquals("Name should match", "John", testUser.name);
-        assertEquals("Surname should match", "Doe", testUser.surname);
+        assertEquals("User ID should match", userId, testUser.getUsername());
+        assertEquals("Password should match", password, testUser.getPassword());
+        assertEquals("Name should match", "John", testUser.getName());
+        assertEquals("Surname should match", "Doe", testUser.getSurname());
         assertEquals("Nation should match", "Italy", testUser.getCountry());
         assertEquals("City should match", "Varese", testUser.getCity());
         assertEquals("Address should match", "123 Main St", testUser.getStreet());
-        assertEquals("Latitude should match", 45.8183, testUser.latitude, 0.0001);
-        assertEquals("Longitude should match", 8.8239, testUser.longitude, 0.0001);
-        assertEquals("Birth date should match", birthDate, testUser.bd);
+        assertEquals("Latitude should match", 45.8183, testUser.getLatitude(), 0.0001);
+        assertEquals("Longitude should match", 8.8239, testUser.getLongitude(), 0.0001);
+        assertEquals("Birth date should match", birthDate, testUser.getBirthday());
         assertEquals("Role should match", "client", testUser.getRole());
     }
 
@@ -57,11 +57,11 @@ public class DTOTestSuite extends TestCase {
         String password = "securePass123";
         UserDTO authUser = new UserDTO(userId, password);
 
-        assertEquals("User ID should match", userId, authUser.usr_id);
-        assertEquals("Password should match", password, authUser.password_pt);
-        assertNull("Name should be null", authUser.name);
-        assertNull("Surname should be null", authUser.surname);
-        assertNull("Role should be null", authUser.role);
+        assertEquals("User ID should match", userId, authUser.getUsername());
+        assertEquals("Password should match", password, authUser.getPassword());
+        assertNull("Name should be null", authUser.getName());
+        assertNull("Surname should be null", authUser.getSurname());
+        assertNull("Role should be null", authUser.getRole());
     }
 
     public void testUserDTOCoordinatesConstructor() {
@@ -69,19 +69,19 @@ public class DTOTestSuite extends TestCase {
         double testLng = 9.1900;
         UserDTO guestUser = new UserDTO(testLat, testLng);
 
-        assertEquals("Latitude should match", testLat, guestUser.latitude, 0.0001);
-        assertEquals("Longitude should match", testLng, guestUser.longitude, 0.0001);
-        assertNull("User ID should be null", guestUser.usr_id);
-        assertNull("Name should be null", guestUser.name);
+        assertEquals("Latitude should match", testLat, guestUser.getLatitude() , 0.0001);
+        assertEquals("Longitude should match", testLng, guestUser.getLongitude(), 0.0001);
+        assertNull("User ID should be null", guestUser.getUsername());
+        assertNull("Name should be null", guestUser.getName());
     }
 
     public void testUserDTODefaultConstructor() {
         UserDTO emptyUser = new UserDTO();
 
-        assertNull("User ID should be null", emptyUser.usr_id);
-        assertNull("Name should be null", emptyUser.name);
-        assertNull("Latitude should be null", emptyUser.latitude);
-        assertNull("Longitude should be null", emptyUser.longitude);
+        assertNull("User ID should be null", emptyUser.getUsername());
+        assertNull("Name should be null", emptyUser.getName());
+        assertNull("Latitude should be null", emptyUser.getLatitude());
+        assertNull("Longitude should be null", emptyUser.getLongitude());
     }
 
     public void testUserDTOToString() {
