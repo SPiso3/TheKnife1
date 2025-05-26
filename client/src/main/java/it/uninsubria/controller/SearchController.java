@@ -33,43 +33,26 @@ public class SearchController {
     @FXML
     private Label locationLabel;
     // Search criteria controls
-    @FXML
-    private ComboBox<CuisineType> cuisineTypeComboBox;
-    @FXML
-    private Slider minPriceSlider;
-    @FXML
-    private Slider maxPriceSlider;
-    @FXML
-    private TextField minPriceField;
-    @FXML
-    private TextField maxPriceField;
-    @FXML
-    private CheckBox deliveryCheckBox;
-    @FXML
-    private CheckBox onlineBookingCheckBox;
+    @FXML private ComboBox<CuisineType> cuisineTypeComboBox;
+    @FXML private Slider minPriceSlider;
+    @FXML private Slider maxPriceSlider;
+    @FXML private TextField minPriceField;
+    @FXML private TextField maxPriceField;
+    @FXML private CheckBox deliveryCheckBox;
+    @FXML private CheckBox onlineBookingCheckBox;
     // Star rating toggles
-    @FXML
-    private ToggleButton star1Button;
-    @FXML
-    private ToggleButton star2Button;
-    @FXML
-    private ToggleButton star3Button;
-    @FXML
-    private ToggleButton star4Button;
-    @FXML
-    private ToggleButton star5Button;
-    @FXML
-    private Label ratingLabel;
+    @FXML private ToggleButton star1Button;
+    @FXML private ToggleButton star2Button;
+    @FXML private ToggleButton star3Button;
+    @FXML private ToggleButton star4Button;
+    @FXML private ToggleButton star5Button;
+    @FXML private Label ratingLabel;
     // Navigation and action buttons
-    @FXML
-    private Button userAreaButton;
-    @FXML
-    private Button logoutButton;
-    @FXML
-    private Button searchButton;
+    @FXML private Button userAreaButton;
+    @FXML private Button logoutButton;
+    @FXML private Button searchButton;
     // Status indicator
-    @FXML
-    private Label statusLabel;
+    @FXML private Label statusLabel;
 
     private UserSession userSession;
 
@@ -85,13 +68,10 @@ public class SearchController {
     private void initialize() {
         setUserSession();
 
-        // Initialize the star rating buttons array for easier manipulation
+        // Initialize UI
         starButtons = new ToggleButton[]{star1Button, star2Button, star3Button, star4Button, star5Button};
-        // Initialize cuisine types
         initializeCuisineTypes();
-        // Initialize price range controls
         initializePriceControls();
-        // Initialize star rating controls
         initializeStarRating();
         // Set default status
         updateStatus("Ready to search");
@@ -102,126 +82,6 @@ public class SearchController {
         updateLocationFromSession();
     }
 
-    /**
-     * Initializes the cuisine type combo box with all available cuisine types.
-     */
-    private void initializeCuisineTypes() {
-        // Create an ObservableList with all CuisineType enum values
-        ObservableList<CuisineType> cuisineTypes = FXCollections.observableArrayList(CuisineType.values());
-        cuisineTypeComboBox.setItems(cuisineTypes);
-        // Set a custom string converter to display the cuisine type names
-        cuisineTypeComboBox.setConverter(new StringConverter<CuisineType>() {
-            @Override
-            public String toString(CuisineType cuisineType) {
-                return cuisineType == null ? "Any cuisine type" : cuisineType.getDisplayName();
-            }
-
-            @Override
-            public CuisineType fromString(String string) {
-                return Arrays.stream(CuisineType.values())
-                        .filter(c -> c.getDisplayName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
-        // Add an "Any" option at the beginning
-        cuisineTypeComboBox.getItems().add(0, null);
-        cuisineTypeComboBox.getSelectionModel().selectFirst();
-    }
-
-    /**
-     * Initializes the price range sliders and text fields with synchronization.
-     */
-    private void initializePriceControls() {
-        // Sync slider value with text field for minimum price
-        minPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            double value = newVal.doubleValue();
-            // Ensure min is not greater than max
-            if (value > maxPriceSlider.getValue()) {
-                minPriceSlider.setValue(maxPriceSlider.getValue());
-                value = maxPriceSlider.getValue();
-            }
-            minPriceField.setText(priceFormat.format(value));
-        });
-
-        // Sync slider value with text field for maximum price
-        maxPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            double value = newVal.doubleValue();
-            // Ensure max is not less than min
-            if (value < minPriceSlider.getValue()) {
-                maxPriceSlider.setValue(minPriceSlider.getValue());
-                value = minPriceSlider.getValue();
-            }
-            maxPriceField.setText(priceFormat.format(value));
-        });
-
-        // Sync text field with slider for minimum price
-        minPriceField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*(\\.\\d*)?")) {
-                minPriceField.setText(oldValue);
-                return;
-            }
-            try {
-                double value = newValue.isEmpty() ? 0 : Double.parseDouble(newValue);
-                if (value >= 0 && value <= 300) {
-                    minPriceSlider.setValue(value);
-                }
-            } catch (NumberFormatException e) {
-                minPriceField.setText(oldValue);
-            }
-        });
-
-        // Sync text field with slider for maximum price
-        maxPriceField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*(\\.\\d*)?")) {
-                maxPriceField.setText(oldValue);
-                return;
-            }
-            try {
-                double value = newValue.isEmpty() ? 0 : Double.parseDouble(newValue);
-                if (value >= 0 && value <= 300) {
-                    maxPriceSlider.setValue(value);
-                }
-            } catch (NumberFormatException e) {
-                maxPriceField.setText(oldValue);
-            }
-        });
-    }
-
-    /**
-     * Initializes the star rating toggle buttons with custom behavior.
-     */
-    private void initializeStarRating() {
-        // Initialize with 1 star selected
-        updateStarSelection(1);
-        // Add click handlers for each star button
-        for (int i = 0; i < starButtons.length; i++) {
-            final int starValue = i + 1;
-            starButtons[i].setOnAction(event -> updateStarSelection(starValue));
-        }
-    }
-
-    /**
-     * Updates the star rating selection to show the specified number of stars.
-     *
-     * @param rating The rating value (1-5)
-     */
-    private void updateStarSelection(int rating) {
-        if (rating < 1 || rating > 5) {
-            return;
-        }
-
-        // Update current selection
-        currentRatingSelection = rating;
-
-        // Update star button states (selected up to the rating value)
-        for (int i = 0; i < starButtons.length; i++) {
-            starButtons[i].setSelected(i < rating);
-        }
-
-        // Update rating label
-        ratingLabel.setText(rating + ".0+ stars");
-    }
 
     /**
      * Updates the location label with coordinates from the user session.
@@ -363,5 +223,131 @@ public class SearchController {
             LOGGER.log(Level.SEVERE, "Error loading login view", e);
             updateStatus("Error returning to login: " + e.getMessage());
         }
+    }
+
+
+
+    // UI STUFF, maybe refactor later, I know it's ugly
+
+
+    /**
+     * Initializes the cuisine type combo box with all available cuisine types.
+     */
+    private void initializeCuisineTypes() {
+        // Create an ObservableList with all CuisineType enum values
+        ObservableList<CuisineType> cuisineTypes = FXCollections.observableArrayList(CuisineType.values());
+        cuisineTypeComboBox.setItems(cuisineTypes);
+        // Set a custom string converter to display the cuisine type names
+        cuisineTypeComboBox.setConverter(new StringConverter<CuisineType>() {
+            @Override
+            public String toString(CuisineType cuisineType) {
+                return cuisineType == null ? "Any cuisine type" : cuisineType.getDisplayName();
+            }
+
+            @Override
+            public CuisineType fromString(String string) {
+                return Arrays.stream(CuisineType.values())
+                        .filter(c -> c.getDisplayName().equals(string))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
+        // Add an "Any" option at the beginning
+        cuisineTypeComboBox.getItems().add(0, null);
+        cuisineTypeComboBox.getSelectionModel().selectFirst();
+    }
+
+    /**
+     * Initializes the price range sliders and text fields with synchronization.
+     */
+    private void initializePriceControls() {
+        // Sync slider value with text field for minimum price
+        minPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double value = newVal.doubleValue();
+            // Ensure min is not greater than max
+            if (value > maxPriceSlider.getValue()) {
+                minPriceSlider.setValue(maxPriceSlider.getValue());
+                value = maxPriceSlider.getValue();
+            }
+            minPriceField.setText(priceFormat.format(value));
+        });
+
+        // Sync slider value with text field for maximum price
+        maxPriceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double value = newVal.doubleValue();
+            // Ensure max is not less than min
+            if (value < minPriceSlider.getValue()) {
+                maxPriceSlider.setValue(minPriceSlider.getValue());
+                value = minPriceSlider.getValue();
+            }
+            maxPriceField.setText(priceFormat.format(value));
+        });
+
+        // Sync text field with slider for minimum price
+        minPriceField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                minPriceField.setText(oldValue);
+                return;
+            }
+            try {
+                double value = newValue.isEmpty() ? 0 : Double.parseDouble(newValue);
+                if (value >= 0 && value <= 300) {
+                    minPriceSlider.setValue(value);
+                }
+            } catch (NumberFormatException e) {
+                minPriceField.setText(oldValue);
+            }
+        });
+
+        // Sync text field with slider for maximum price
+        maxPriceField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                maxPriceField.setText(oldValue);
+                return;
+            }
+            try {
+                double value = newValue.isEmpty() ? 0 : Double.parseDouble(newValue);
+                if (value >= 0 && value <= 300) {
+                    maxPriceSlider.setValue(value);
+                }
+            } catch (NumberFormatException e) {
+                maxPriceField.setText(oldValue);
+            }
+        });
+    }
+
+    /**
+     * Initializes the star rating toggle buttons with custom behavior.
+     */
+    private void initializeStarRating() {
+        // Initialize with 1 star selected
+        updateStarSelection(1);
+        // Add click handlers for each star button
+        for (int i = 0; i < starButtons.length; i++) {
+            final int starValue = i + 1;
+            starButtons[i].setOnAction(event -> updateStarSelection(starValue));
+        }
+    }
+
+    /**
+     * Updates the star rating selection to show the specified number of stars.
+     *
+     * @param rating The rating value (1-5)
+     */
+    private void updateStarSelection(int rating) {
+        if (rating < 1 || rating > 5) {
+            return;
+        }
+
+        // Update current selection
+        currentRatingSelection = rating;
+
+        // Update star button states (selected up to the rating value)
+        for (int i = 0; i < starButtons.length; i++) {
+            starButtons[i].setSelected(i < rating);
+        }
+
+        // Update rating label
+        ratingLabel.setText((rating-1) + ".0+ stars");
     }
 }
