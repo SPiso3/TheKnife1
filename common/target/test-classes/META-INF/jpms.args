@@ -1,4 +1,0 @@
---patch-module
-it.uninsubria.common=_
---add-reads
-it.uninsubria.common=ALL-UNNAMED
