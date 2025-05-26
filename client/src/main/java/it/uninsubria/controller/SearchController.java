@@ -192,16 +192,40 @@ public class SearchController {
         return builder.build();
     }
 
-    /**
-     * Navigates to the results view with the specified search criteria.
-     *
-     * @param searchCriteria The search criteria to use for finding restaurants
-     */
-    private void navigateToResultsView(SearchCriteriaDTO searchCriteria) {
-        // TODO: Implement navigation to results view
-        updateStatus("Ready to navigate to results (not implemented yet)");
 
-        // This would be implemented later as requested
+    /**
+     * Handles clicking on a restaurant card.
+     * Opens the restaurant detail window with the selected restaurant information.
+     *
+     * @param restaurant The clicked restaurant
+     */
+    private void handleRestaurantClick(RestaurantDTO restaurant) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("restaurant-info-view.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and set the restaurant data
+            RestaurantInfoController controller = loader.getController();
+            controller.setRestaurant(restaurant);
+
+            // Create new stage for restaurant info
+            Stage restaurantStage = new Stage();
+            restaurantStage.setTitle("Restaurant Info - " + restaurant.name);
+            restaurantStage.setScene(new Scene(root));
+            // Set window properties
+            restaurantStage.setResizable(true);
+            restaurantStage.setMinWidth(600);
+            restaurantStage.setMinHeight(500);
+
+            // Show the window (non-modal)
+            restaurantStage.show();
+
+            statusLabel.setText("Opened details for: " + restaurant.name);
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error loading restaurant info view", e);
+            statusLabel.setText("Error opening restaurant details");
+        }
     }
 
     /**
@@ -257,23 +281,6 @@ public class SearchController {
         // Set up the click handler for restaurant cards
         resultsComponent.setOnRestaurantClick(this::handleRestaurantClick);
 
-    }
-
-    /**
-     * Handles clicking on a restaurant card.
-     *
-     * @param restaurant The clicked restaurant
-     */
-    private void handleRestaurantClick(RestaurantDTO restaurant) {
-        // TODO: Implement restaurant detail view
-        System.out.println("Clicked on restaurant: " + restaurant.name);
-
-        // You can:
-        // 1. Open a new window with restaurant details
-        // 2. Navigate to a restaurant detail scene
-        // 3. Show a popup with restaurant information
-
-        statusLabel.setText("Selected: " + restaurant.name);
     }
 
 
