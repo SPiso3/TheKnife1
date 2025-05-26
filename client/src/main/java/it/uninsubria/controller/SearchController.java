@@ -1,9 +1,13 @@
 package it.uninsubria.controller;
 
+import it.uninsubria.controller.ui_components.GenericResultsComponent;
 import it.uninsubria.dto.CuisineType;
+import it.uninsubria.dto.RestaurantDTO;
+import it.uninsubria.dto.ReviewDTO;
 import it.uninsubria.dto.SearchCriteriaDTO;
 import it.uninsubria.controller.LoginController;
 import it.uninsubria.session.UserSession;
+import it.uninsubria.utilclient.ClientUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,6 +22,7 @@ import javafx.util.StringConverter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +58,9 @@ public class SearchController {
     @FXML private Button searchButton;
     // Status indicator
     @FXML private Label statusLabel;
+    // Result Pane
+    @FXML private TitledPane rightTitledPane;
+    private GenericResultsComponent resultsComponent;
 
     private UserSession userSession;
 
@@ -73,6 +81,7 @@ public class SearchController {
         initializeCuisineTypes();
         initializePriceControls();
         initializeStarRating();
+        initializeResultsComponent();
         // Set default status
         updateStatus("Ready to search");
     }
@@ -117,21 +126,29 @@ public class SearchController {
      */
     @FXML
     private void handleSearch() {
-        // Collect search criteria
-        SearchCriteriaDTO searchCriteria = buildSearchCriteria();
+        updateStatus("Searching...");
+
+        // Get restaurant list from utility
+        // TODO: Replace with actual RMI call when server is ready
+        // adding criteria build
+        List<RestaurantDTO> restaurants = ClientUtil.getRestaurantList();
+
+        // Show results component and update with restaurants
+        showResultsPanel();
+
+        resultsComponent.showRestaurants(restaurants);
 
         // Update status
-        updateStatus("Searching for restaurants...");
+        statusLabel.setText("Found " + restaurants.size() + " restaurants");
+    }
 
-        // TODO: Perform the search (would connect to backend service)
-
-        // For now, just navigate to a results view (to be created later)
-        try {
-            // Navigate to results view with search criteria
-            navigateToResultsView(searchCriteria);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error navigating to results view", e);
-            updateStatus("Error: " + e.getMessage());
+    /**
+     * Replaces the right panel content with the results component.
+     */
+    private void showResultsPanel() {
+        if (rightTitledPane != null) {
+            rightTitledPane.setText("Search Results");
+            rightTitledPane.setContent(resultsComponent);
         }
     }
 
@@ -228,6 +245,36 @@ public class SearchController {
 
 
     // UI STUFF, maybe refactor later, I know it's ugly
+
+    /**
+     * Initializes the results component and sets up the UI.
+     * Add this to your existing initialize() method.
+     */
+    private void initializeResultsComponent() {
+        // Initialize the results component
+        resultsComponent = new GenericResultsComponent();
+
+        // Set up the click handler for restaurant cards
+        resultsComponent.setOnRestaurantClick(this::handleRestaurantClick);
+
+    }
+
+    /**
+     * Handles clicking on a restaurant card.
+     *
+     * @param restaurant The clicked restaurant
+     */
+    private void handleRestaurantClick(RestaurantDTO restaurant) {
+        // TODO: Implement restaurant detail view
+        System.out.println("Clicked on restaurant: " + restaurant.name);
+
+        // You can:
+        // 1. Open a new window with restaurant details
+        // 2. Navigate to a restaurant detail scene
+        // 3. Show a popup with restaurant information
+
+        statusLabel.setText("Selected: " + restaurant.name);
+    }
 
 
     /**
