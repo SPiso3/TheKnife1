@@ -39,9 +39,25 @@ public class RestaurantServiceImplTest extends TestCase {
     }
 
     public void testGetFavoriteRestaurants() {
+        try {
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            List<RestaurantDTO> favorites = service.getFavoriteRestaurants("Aiden56");
+            System.out.println("Total favorite restaurants found: " + favorites.size());
+            assertFalse(favorites.isEmpty());
+        } catch (RemoteException e) {
+            fail("RemoteException should not be thrown when fetching favorite restaurants.");
+        }
     }
 
     public void testGetOwnedRestaurants() {
+        try {
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            List<RestaurantDTO> ownedRestaurants = service.getOwnedRestaurants("Jo_Schaefer6");
+            System.out.println("Total owned restaurants found: " + ownedRestaurants.size());
+            assertFalse(ownedRestaurants.isEmpty());
+        } catch (RemoteException e) {
+            fail("RemoteException should not be thrown when fetching owned restaurants.");
+        }
     }
 
     public void testGetReviewedRestaurants() {

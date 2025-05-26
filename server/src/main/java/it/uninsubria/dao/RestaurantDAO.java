@@ -168,13 +168,13 @@ public class RestaurantDAO {
 
     public static List<RestaurantDTO> getFavoriteRestaurants(String userId) {
         final String query = "SELECT * FROM restaurants WHERE restaurant_id IN " +
-                "(SELECT restaurant_id FROM favorites WHERE user_id = ?);";
+                "(SELECT restaurant_id FROM favorites WHERE username = ?);";
         List<RestaurantDTO> result = new java.util.ArrayList<RestaurantDTO>(List.of());
         Connection conn = DBConnection.getConnection();
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement(query);
-            stmt.setInt(1, Integer.parseInt(userId));
+            stmt.setString(1, userId);
             ResultSet res = stmt.executeQuery();
             result = parseSQLRestaurantResults(res);
         } catch (Exception e) {
@@ -221,6 +221,22 @@ public class RestaurantDAO {
                 RestaurantDTO restaurant = parseSQLRestaurantResult(res);
                 result.add(restaurant);
             } catch (Exception ignored) {}
+        }
+        return result;
+    }
+
+    public static List<RestaurantDTO> getOwnedRestaurants(String userId) {
+        final String query = "SELECT * FROM restaurants WHERE r_owner = ?;";
+        List<RestaurantDTO> result = new java.util.ArrayList<RestaurantDTO>(List.of());
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, userId);
+            ResultSet res = stmt.executeQuery();
+            result = parseSQLRestaurantResults(res);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return result;
     }
