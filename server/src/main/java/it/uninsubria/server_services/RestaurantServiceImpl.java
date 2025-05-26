@@ -16,7 +16,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public List<RestaurantDTO> getFavoriteRestaurants(String userId) throws RemoteException {
-        return List.of();
+        return RestaurantDAO.getFavoriteRestaurants(userId);
     }
 
     @Override

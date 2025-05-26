@@ -29,34 +29,7 @@ public class RestaurantDAO {
         try {
             stmt = conn.prepareStatement(query);
             ResultSet res = stmt.executeQuery();
-            while (res.next()) {
-                try {
-                    String restaurantId = res.getString("restaurant_id");
-                    String ownerId = res.getString("r_owner");
-                    String name = res.getString("r_name");
-                    Double avgPrice = res.getDouble("avg_price");
-                    Boolean deliveryAvailable = res.getBoolean("delivery");
-                    Boolean onlineBookingAvailable = res.getBoolean("booking");
-                    String r_type = res.getString("r_type");
-                    CuisineType cuisineType = CuisineType.fromDisplayName(r_type);
-                    Double latitude = res.getDouble("latitude");
-                    Double longitude = res.getDouble("longitude");
-                    AddressDTO addressDTO = AddressDAO.getAddress(res.getInt("address_id"));
-                    Integer rating_count = getRatingCount(restaurantId);
-                    Double avg_rating = getAvgRating(restaurantId);
-
-                    assert addressDTO != null;
-                    RestaurantDTO restaurant = new RestaurantDTO(restaurantId, name, addressDTO.getCountry(), addressDTO.getCity(), addressDTO.getStreet(),
-                            latitude, longitude, avgPrice,
-                            rating_count, avg_rating,
-                            deliveryAvailable, onlineBookingAvailable, cuisineType,
-                            ownerId);
-                    result.add(restaurant);
-                } catch (Exception ignored) {
-                    // If any error occurs while creating the RestaurantDTO, we skip that entry
-                    // This is to ensure that one faulty entry does not break the entire search
-                }
-            }
+            result = parseSQLRestaurantResults(res);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -193,4 +166,62 @@ public class RestaurantDAO {
     }
 
 
+    public static List<RestaurantDTO> getFavoriteRestaurants(String userId) {
+        final String query = "SELECT * FROM restaurants WHERE restaurant_id IN " +
+                "(SELECT restaurant_id FROM favorites WHERE user_id = ?);";
+        List<RestaurantDTO> result = new java.util.ArrayList<RestaurantDTO>(List.of());
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, Integer.parseInt(userId));
+            ResultSet res = stmt.executeQuery();
+            result = parseSQLRestaurantResults(res);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
+
+    private static RestaurantDTO parseSQLRestaurantResult(ResultSet res) throws Exception {
+        String restaurantId = res.getString("restaurant_id");
+        String ownerId = res.getString("r_owner");
+        String name = res.getString("r_name");
+        Double avgPrice = res.getDouble("avg_price");
+        Boolean deliveryAvailable = res.getBoolean("delivery");
+        Boolean onlineBookingAvailable = res.getBoolean("booking");
+        String r_type = res.getString("r_type");
+        CuisineType cuisineType = CuisineType.fromDisplayName(r_type);
+        Double latitude = res.getDouble("latitude");
+        Double longitude = res.getDouble("longitude");
+        AddressDTO addressDTO = AddressDAO.getAddress(res.getInt("address_id"));
+        Integer rating_count = getRatingCount(restaurantId);
+        Double avg_rating = getAvgRating(restaurantId);
+
+        assert addressDTO != null;
+        return new RestaurantDTO(restaurantId, name, addressDTO.getCountry(), addressDTO.getCity(), addressDTO.getStreet(),
+                latitude, longitude, avgPrice,
+                rating_count, avg_rating,
+                deliveryAvailable, onlineBookingAvailable, cuisineType,
+                ownerId);
+    }
+
+    private static List<RestaurantDTO> parseSQLRestaurantResults(ResultSet res) throws Exception {
+        List<RestaurantDTO> result = new java.util.ArrayList<RestaurantDTO>(List.of());
+        while (res.next()) {
+            try {
+                RestaurantDTO restaurant = parseSQLRestaurantResult(res);
+                result.add(restaurant);
+            } catch (Exception ignored) {}
+        }
+        return result;
+    }
 }
