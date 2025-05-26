@@ -99,6 +99,8 @@ public class RestaurantDTO implements Serializable {
         this.owner_usrId = owner_usrId;
     }
 
+    public RestaurantDTO() {}
+
     @Override
     public String toString() {
         return "RestaurantDTO{" +

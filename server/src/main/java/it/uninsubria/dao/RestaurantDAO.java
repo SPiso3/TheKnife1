@@ -6,9 +6,7 @@ import it.uninsubria.dto.CuisineType;
 import it.uninsubria.dto.RestaurantDTO;
 import it.uninsubria.dto.SearchCriteriaDTO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.List;
 
 public class RestaurantDAO {
@@ -256,5 +254,49 @@ public class RestaurantDAO {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static void insertFavoriteRestaurant(String userId, String restaurantId) throws SQLException {
+        final String query = "INSERT INTO favorites (username, restaurant_id) VALUES (?, ?);";
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, userId);
+        stmt.setInt(2, Integer.parseInt(restaurantId));
+        stmt.executeUpdate();
+    }
+
+    public static void deleteFavoriteRestaurant(String userId, String restaurantId) throws SQLException {
+        final String query = "DELETE FROM favorites WHERE username = ? AND restaurant_id = ?;";
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, userId);
+        stmt.setInt(2, Integer.parseInt(restaurantId));
+        stmt.executeUpdate();
+    }
+
+    public static RestaurantDTO insertRestaurant(RestaurantDTO restaurant) throws SQLException {
+        /*(restaurant_id, r_owner, r_name, avg_price, delivery, booking, r_type, latitude, longitude, address_id)*/
+        final String query = "INSERT INTO restaurants (restaurant_id, r_owner, r_name, avg_price, delivery, booking, r_type, latitude, longitude, address_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        Connection conn = DBConnection.getConnection();
+        int addressId = AddressDAO.getAddressId(restaurant.address);
+        PreparedStatement stmt = conn.prepareStatement("SELECT MAX(restaurant_id)+1 FROM restaurants");
+        ResultSet rs = stmt.executeQuery();
+        rs.next();
+        int id = rs.getInt(1);
+        stmt = conn.prepareStatement(query);
+        stmt.setInt(1, id);
+        stmt.setString(2, restaurant.owner_usrId);
+        stmt.setString(3, restaurant.name);
+        stmt.setDouble(4, restaurant.avg_price);
+        stmt.setBoolean(5, restaurant.delivery);
+        stmt.setBoolean(6, restaurant.online_booking);
+        stmt.setObject(7, restaurant.cuisine.getDisplayName(), Types.OTHER);
+        stmt.setDouble(8, restaurant.latitude);
+        stmt.setDouble(9, restaurant.longitude);
+        stmt.setInt(10, addressId);
+        stmt.executeUpdate();
+        restaurant.id = String.valueOf(id);
+        return restaurant;
     }
 }

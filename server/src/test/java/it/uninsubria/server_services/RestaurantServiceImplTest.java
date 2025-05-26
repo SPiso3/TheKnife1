@@ -1,6 +1,8 @@
 package it.uninsubria.server_services;
 
 import it.uninsubria.DBConnection;
+import it.uninsubria.dto.AddressDTO;
+import it.uninsubria.dto.CuisineType;
 import it.uninsubria.dto.RestaurantDTO;
 import it.uninsubria.dto.SearchCriteriaDTO;
 import junit.framework.TestCase;
@@ -80,11 +82,46 @@ public class RestaurantServiceImplTest extends TestCase {
     }
 
     public void testAddFavoriteRestaurant() {
+        try {
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            boolean result = service.addFavoriteRestaurant("Aiden56", "15");
+            assertTrue(result);
+            System.out.println("Favorite restaurant added successfully.");
+        } catch (RemoteException e) {
+            fail("RemoteException should not be thrown when adding a favorite restaurant.");
+        }
     }
 
     public void testRemoveFavoriteRestaurant() {
+        try {
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            boolean result = service.removeFavoriteRestaurant("Aiden56", "15");
+            assertTrue(result);
+            System.out.println("Favorite restaurant removed successfully.");
+        } catch (RemoteException e) {
+            fail("RemoteException should not be thrown when removing a favorite restaurant.");
+        }
     }
 
     public void testCreateRestaurant() {
+        try {
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            RestaurantDTO newRestaurant = new RestaurantDTO();
+            newRestaurant.name = "Test Restaurant";
+            newRestaurant.address = new AddressDTO("Italy", "Milan", "Via Test 123");
+            newRestaurant.cuisine = CuisineType.ITALIAN;
+            newRestaurant.delivery = true;
+            newRestaurant.online_booking = true;
+            newRestaurant.avg_price = 4.5;
+            newRestaurant.latitude = 45.4642;
+            newRestaurant.longitude = 9.1900;
+            newRestaurant.owner_usrId = "Jo_Schaefer6";
+
+            RestaurantDTO createdRestaurant = service.createRestaurant(newRestaurant, "Jo_Schaefer6");
+            assertNotNull(createdRestaurant);
+            System.out.println("Created restaurant: " + createdRestaurant.id);
+        } catch (RemoteException | SecurityException e) {
+            fail("RemoteException or SecurityException should not be thrown when creating a restaurant.");
+        }
     }
 }

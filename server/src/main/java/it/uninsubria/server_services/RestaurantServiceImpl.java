@@ -10,37 +10,55 @@ import java.util.List;
 
 public class RestaurantServiceImpl implements RestaurantService {
     @Override
-    public List<RestaurantDTO> searchRestaurants(SearchCriteriaDTO criteria) throws RemoteException {
+    public synchronized List<RestaurantDTO> searchRestaurants(SearchCriteriaDTO criteria) throws RemoteException {
         return RestaurantDAO.searchRestaurants(criteria);
     }
 
     @Override
-    public List<RestaurantDTO> getFavoriteRestaurants(String userId) throws RemoteException {
+    public synchronized List<RestaurantDTO> getFavoriteRestaurants(String userId) throws RemoteException {
         return RestaurantDAO.getFavoriteRestaurants(userId);
     }
 
     @Override
-    public List<RestaurantDTO> getOwnedRestaurants(String userId) throws RemoteException {
+    public synchronized List<RestaurantDTO> getOwnedRestaurants(String userId) throws RemoteException {
         return RestaurantDAO.getOwnedRestaurants(userId);
     }
 
     @Override
-    public List<RestaurantDTO> getReviewedRestaurants(String userId) throws RemoteException {
+    public synchronized List<RestaurantDTO> getReviewedRestaurants(String userId) throws RemoteException {
         return RestaurantDAO.getReviewedRestaurants(userId);
     }
 
     @Override
-    public boolean addFavoriteRestaurant(String userId, String restaurantId) throws RemoteException {
-        return false;
+    public synchronized boolean addFavoriteRestaurant(String userId, String restaurantId) throws RemoteException {
+        try {
+            RestaurantDAO.insertFavoriteRestaurant(userId, restaurantId);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
-    public boolean removeFavoriteRestaurant(String userId, String restaurantId) throws RemoteException {
-        return false;
+    public synchronized boolean removeFavoriteRestaurant(String userId, String restaurantId) throws RemoteException {
+        try {
+            RestaurantDAO.deleteFavoriteRestaurant(userId, restaurantId);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
-    public RestaurantDTO createRestaurant(RestaurantDTO restaurant, String ownerId) throws RemoteException, SecurityException {
-        return null;
+    public synchronized RestaurantDTO createRestaurant(RestaurantDTO restaurant, String ownerId) throws RemoteException, SecurityException {
+        try {
+            restaurant.owner_usrId = ownerId;
+            return RestaurantDAO.insertRestaurant(restaurant);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SecurityException("Failed to create restaurant: " + e.getMessage());
+        }
     }
 }
