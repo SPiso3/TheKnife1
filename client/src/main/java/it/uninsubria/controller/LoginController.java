@@ -29,22 +29,15 @@ import java.util.logging.Logger;
  */
 public class LoginController {
     private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private PasswordField passwordField;
-    @FXML
-    private Button loginButton;
-    @FXML
-    private Button registerButton;
-    @FXML
-    private TextField latitudeField;
-    @FXML
-    private TextField longitudeField;
-    @FXML
-    private Button guestButton;
-    @FXML
-    private Label errorLabel;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private Button loginButton;
+    @FXML private Button registerButton;
+    @FXML private TextField latitudeField;
+    @FXML private TextField longitudeField;
+    @FXML private Button guestButton;
+    @FXML private Label errorLabel;
+
     private UserSession userSession;
     private UserService userService;
 
@@ -121,19 +114,11 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("registration-view.fxml"));
             Parent root = loader.load();
 
-            // Get the current stage
             Stage stage = (Stage) registerButton.getScene().getWindow();
 
-            // Set the new scene
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.setTitle("TheKnife - Registration");
-
-            // Pass the user session to the registration controller
-            RegistrationController registrationController = loader.getController();
-            if (userSession != null) {
-                registrationController.setUserSession(userSession);
-            }
 
             stage.show();
         } catch (IOException e) {
