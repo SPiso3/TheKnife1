@@ -1,26 +1,17 @@
 package it.uninsubria.server_services;
 
-import it.uninsubria.DBConnection;
-import it.uninsubria.dto.AddressDTO;
+import it.uninsubria.dao.AddressDAO;
 import it.uninsubria.dto.UserDTO;
 import it.uninsubria.dao.UserDAO;
-import it.uninsubria.exceptions.AddressException;
 import it.uninsubria.services.UserService;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class UserServiceImpl extends UnicastRemoteObject implements UserService {
 
-    private final Connection conn;
-    // non c'è bisogno di passare la connection, per le mie cose l'ho gestita tutta dai DAO.
-    public UserServiceImpl() throws RemoteException {
-        this.conn = DBConnection.getConnection();
-    }
+    public UserServiceImpl() throws RemoteException {}
 
     /**
      * Authenticates a user with the provided credentials.
@@ -58,40 +49,12 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
             throw new SecurityException("User already exists"); // to handle better, maybe custom exception
         }
         // add address to database and get address id
-        Integer addressId;
+        Integer addressId = AddressDAO.getAddressId(userData.getAddress());
+        // add user to database
         try {
-            addressId = getAddressId(userData.getAddress());
-        } catch (AddressException e) {
-            throw new IllegalArgumentException("Error adding address to database");
-        }
-        // insert user into database
-
-    }
-
-    private Integer getAddressId(AddressDTO address) throws AddressException {
-        final String insertAddressSQL = "INSERT INTO addresses (country, city, street) VALUES (?, ?, ?)";
-        final String getAddressIdSQL = "SELECT id FROM addresses WHERE nation = ? AND city = ? AND address = ?";
-        try {
-            PreparedStatement insertAddressStmt = conn.prepareStatement(insertAddressSQL);
-            insertAddressStmt.setString(1, address.getCountry());
-            insertAddressStmt.setString(2, address.getCity());
-            insertAddressStmt.setString(3, address.getStreet());
-            insertAddressStmt.executeUpdate();
-            conn.commit();
-        } catch (SQLException ignored) {}
-        try {
-            PreparedStatement getAddressIdStmt = conn.prepareStatement(getAddressIdSQL);
-            getAddressIdStmt.setString(1, address.nation);
-            getAddressIdStmt.setString(2, address.city);
-            getAddressIdStmt.setString(3, address.address);
-            ResultSet rs = getAddressIdStmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("address_id");
-            } else {
-                throw new AddressException("Error getting address ID");
-            }
+            UserDAO.addUser(userData, addressId);
         } catch (SQLException e) {
-            throw new AddressException("Error getting address ID");
+            throw new RuntimeException("Error adding user to database", e);
         }
     }
 }

@@ -211,5 +211,4 @@ public class UserDTO implements Serializable {
     public String getStreet() {
         return this.address.getStreet();
     }
-
 }

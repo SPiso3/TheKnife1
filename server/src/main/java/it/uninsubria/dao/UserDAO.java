@@ -15,9 +15,7 @@ public class UserDAO {
             WHERE username = ?
             """;
 
-    private static final String QUERY_ADD_USER = """
-            INSERT INTO users (username, h_password, name, surname, birth_date, role, address_id) VALUES (?, ?, ?, ?, ?, ?)";
-            """;
+    private static final String QUERY_ADD_USER = "INSERT INTO users (username, h_password, name, surname, birth_date, role, address_id, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 
     public static UserDTO getUserByID(String usr) {
@@ -42,10 +40,9 @@ public class UserDAO {
                     Double latitude = rs.getDouble("latitude");
                     Double longitude = rs.getDouble("longitude");
                     // Note: address_id is not mapped to UserDTO as it's not in the DTO structure
-                    UserDTO res = new UserDTO(username, hashedPassword, name, surname, latitude, longitude, birthDate, role);
                     //System.out.println(res);
                     // Create and return UserDTO with all available information
-                    return res;
+                    return new UserDTO(username, hashedPassword, name, surname, latitude, longitude, birthDate, role);
                 } else {
                     // User not found
                     System.out.println("not entering");
@@ -59,5 +56,20 @@ public class UserDAO {
             // You might want to throw a custom exception here instead
             throw new RuntimeException("Failed to retrieve user from database", e);
         }
+    }
+
+
+    public static synchronized void addUser(UserDTO userData, Integer addressId) throws SQLException {
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(QUERY_ADD_USER);
+        stmt.setString(1, userData.getUsername());
+        stmt.setString(2, userData.getPassword()); // Assuming password is already hashed
+        stmt.setString(3, userData.getName());
+        stmt.setString(4, userData.getSurname());
+        stmt.setDate(5, userData.getBirthday());
+        stmt.setString(6, userData.getRole());
+        stmt.setInt(7, addressId);
+        stmt.executeUpdate();
+        conn.commit();
     }
 }
