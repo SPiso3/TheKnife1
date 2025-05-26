@@ -15,9 +15,9 @@ public class ReviewDTO implements Serializable {
 
     public String usr_id;
     public String rest_id;
-    public String customer_msg;
+    public String customer_msg = null;
     public Integer rating;
-    public String rest_rep;
+    public String rest_rep = null;
 
     /**
      * Complete constructor with all review information.
@@ -53,6 +53,8 @@ public class ReviewDTO implements Serializable {
         this.rest_rep = null;
     }
 
+    public ReviewDTO() {}
+
     @Override
     public String toString() {
         return "ReviewDTO{" +
@@ -62,5 +64,41 @@ public class ReviewDTO implements Serializable {
                 ", rating=" + rating +
                 ", rest_rep='" + (rest_rep != null ? rest_rep : "No reply yet") + '\'' +
                 '}';
+    }
+
+    public void setUsr_id(String usr_id) {
+        this.usr_id = usr_id;
+    }
+    public void setRest_id(String rest_id) {
+        this.rest_id = rest_id;
+    }
+    public void setCustomer_msg(String customer_msg) {
+        this.customer_msg = customer_msg;
+    }
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+    public void setRest_rep(String rest_rep) {
+        this.rest_rep = rest_rep;
+    }
+
+    public String getUsr_id() {
+        return usr_id;
+    }
+
+    public String getRest_id() {
+        return rest_id;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public String getCustomer_msg() {
+        return customer_msg;
+    }
+
+    public String getRest_rep() {
+        return rest_rep;
     }
 }
