@@ -1,0 +1,4 @@
+--patch-module
+it.uninsubria.server=_
+--add-reads
+it.uninsubria.server=ALL-UNNAMED

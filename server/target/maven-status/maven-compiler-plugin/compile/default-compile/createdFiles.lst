@@ -1,0 +1,7 @@
+it/uninsubria/Server.class
+it/uninsubria/DBConnection.class
+it/uninsubria/dao/AddressDAO.class
+it/uninsubria/server_services/UserServiceImpl.class
+module-info.class
+it/uninsubria/DBConnector.class
+it/uninsubria/dao/UserDAO.class

@@ -42,4 +42,25 @@ public class AddressDAO {
             throw new AddressException("Error querying address ID");
         }
     }
+
+    public static AddressDTO getAddress(int addressId) {
+        final String getAddressSQL = "SELECT country, city, street FROM addresses WHERE address_id = ?;";
+        Connection conn = DBConnection.getConnection();
+        try {
+            PreparedStatement stmt = conn.prepareStatement(getAddressSQL);
+            stmt.setInt(1, addressId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String country = rs.getString("country");
+                String city = rs.getString("city");
+                String street = rs.getString("street");
+                return new AddressDTO(country, city, street);
+            } else {
+                return null; // Address not found
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null; // Error occurred
+        }
+    }
 }
