@@ -81,7 +81,7 @@ public class RestaurantDAO {
         final String query = "SELECT COUNT(*) AS rating_count FROM reviews WHERE restaurant_id = ?";
         Connection conn = DBConnection.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, restaurantId);
+            stmt.setInt(1, Integer.parseInt(restaurantId));
             ResultSet res = stmt.executeQuery();
             if (res.next()) {
                 count = res.getInt("rating_count");
@@ -102,7 +102,7 @@ public class RestaurantDAO {
         final String query = "SELECT AVG(rating) AS avg_rating FROM reviews WHERE restaurant_id = ?";
         Connection conn = DBConnection.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, restaurantId);
+            stmt.setInt(1, Integer.parseInt(restaurantId));
             ResultSet res = stmt.executeQuery();
             if (res.next()) {
                 avgRating = res.getDouble("avg_rating");
@@ -166,7 +166,7 @@ public class RestaurantDAO {
             } else {
                 query.append(" AND ");
             }
-            query.append("delivery = ").append(criteria.deliveryAvailable ? 1 : 0);
+            query.append("delivery = ").append(criteria.deliveryAvailable ? "TRUE" : "FALSE");
         }
 
         if (criteria.onlineBookingAvailable != null) {
@@ -176,7 +176,7 @@ public class RestaurantDAO {
             } else {
                 query.append(" AND ");
             }
-            query.append("booking = ").append(criteria.onlineBookingAvailable ? 1 : 0);
+            query.append("booking = ").append(criteria.onlineBookingAvailable ? "TRUE" : "FALSE");
         }
 
         if (criteria.minRating != null) {

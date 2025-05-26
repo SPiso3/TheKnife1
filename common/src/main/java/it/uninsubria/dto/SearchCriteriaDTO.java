@@ -7,7 +7,6 @@ import java.io.Serializable;
  * This class encapsulates the various search parameters that can be used to filter restaurants
  * in the searchRestaurant() functionality. It implements Serializable to allow
  * transfer between client and server components.
- *
  * This class implements the Builder pattern to allow for easy, modular construction
  * of search criteria with only the parameters that are needed.
  *
@@ -30,7 +29,7 @@ public class SearchCriteriaDTO implements Serializable {
     /**
      * Private constructor used by the Builder.
      */
-    private SearchCriteriaDTO() {
+    public SearchCriteriaDTO() {
     }
 
     /**

@@ -11,9 +11,6 @@ import java.util.List;
 public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public List<RestaurantDTO> searchRestaurants(SearchCriteriaDTO criteria) throws RemoteException {
-        if (criteria == null || !criteria.hasValidCoordinates()) {
-            throw new RemoteException("Invalid search criteria: must include valid coordinates.");
-        }
         return RestaurantDAO.searchRestaurants(criteria);
     }
 
