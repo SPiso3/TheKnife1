@@ -320,9 +320,6 @@ public class RegistrationController {
 
             // Get the login controller and set the user session
             LoginController loginController = loader.getController();
-            if (userSession != null) {
-                loginController.setUserSession(userSession);
-            }
 
             // Get the current stage
             Stage stage = (Stage) backButton.getScene().getWindow();

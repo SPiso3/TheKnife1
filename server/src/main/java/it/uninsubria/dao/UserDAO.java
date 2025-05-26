@@ -9,16 +9,20 @@ import java.sql.*;
 public class UserDAO {
     //queries
 
-    private static final String QUERY_GET_USER_BY_ID = """
+    private static final String QUERY_GET_USER_BY_USERID = """
             SELECT username, h_password, name, surname, birth_date, role, latitude, longitude, address_id
             FROM Users
             WHERE username = ?
             """;
 
+    private static final String QUERY_ADD_USER = """
+            INSERT INTO users (username, h_password, name, surname, birth_date, role, address_id) VALUES (?, ?, ?, ?, ?, ?)";
+            """;
+
 
     public static UserDTO getUserByID(String usr) {
         Connection conn = DBConnection.getConnection();
-        try (PreparedStatement stmt = conn.prepareStatement(QUERY_GET_USER_BY_ID)) {
+        try (PreparedStatement stmt = conn.prepareStatement(QUERY_GET_USER_BY_USERID)) {
             // Set the parameter (username)
             stmt.setString(1, usr);
 

@@ -42,8 +42,7 @@ public class ClientTK extends Application {
         Parent root = loader.load();
 
         // Get the login controller and set the user session
-        LoginController loginController = loader.getController();
-        loginController.setUserSession(userSession);
+//        LoginController loginController = loader.getController();
 
         // Set up the primary stage
         primaryStage.setTitle("TheKnife - Login");

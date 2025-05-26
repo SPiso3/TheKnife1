@@ -8,6 +8,7 @@ module it.uninsubria.client {
     requires net.synedra.validatorfx;
     requires org.kordamp.ikonli.javafx;
     requires java.sql;
+    requires java.rmi;
 
     opens it.uninsubria.controller to javafx.fxml;
     exports it.uninsubria.controller;

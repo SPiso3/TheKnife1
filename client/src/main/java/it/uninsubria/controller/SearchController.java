@@ -72,9 +72,9 @@ public class SearchController {
     private Label statusLabel;
 
     private UserSession userSession;
+
     private ToggleButton[] starButtons;
     private int currentRatingSelection = 1; // Default is 1 star
-
     private final DecimalFormat priceFormat = new DecimalFormat("#.##");
 
     /**
@@ -83,20 +83,23 @@ public class SearchController {
      */
     @FXML
     private void initialize() {
+        setUserSession();
+
         // Initialize the star rating buttons array for easier manipulation
         starButtons = new ToggleButton[]{star1Button, star2Button, star3Button, star4Button, star5Button};
-
         // Initialize cuisine types
         initializeCuisineTypes();
-
         // Initialize price range controls
         initializePriceControls();
-
         // Initialize star rating controls
         initializeStarRating();
-
         // Set default status
         updateStatus("Ready to search");
+    }
+
+    public void setUserSession() {
+        this.userSession = UserSession.getInstance();
+        updateLocationFromSession();
     }
 
     /**
@@ -106,7 +109,6 @@ public class SearchController {
         // Create an ObservableList with all CuisineType enum values
         ObservableList<CuisineType> cuisineTypes = FXCollections.observableArrayList(CuisineType.values());
         cuisineTypeComboBox.setItems(cuisineTypes);
-
         // Set a custom string converter to display the cuisine type names
         cuisineTypeComboBox.setConverter(new StringConverter<CuisineType>() {
             @Override
@@ -122,7 +124,6 @@ public class SearchController {
                         .orElse(null);
             }
         });
-
         // Add an "Any" option at the beginning
         cuisineTypeComboBox.getItems().add(0, null);
         cuisineTypeComboBox.getSelectionModel().selectFirst();
@@ -160,7 +161,6 @@ public class SearchController {
                 minPriceField.setText(oldValue);
                 return;
             }
-
             try {
                 double value = newValue.isEmpty() ? 0 : Double.parseDouble(newValue);
                 if (value >= 0 && value <= 300) {
@@ -177,7 +177,6 @@ public class SearchController {
                 maxPriceField.setText(oldValue);
                 return;
             }
-
             try {
                 double value = newValue.isEmpty() ? 0 : Double.parseDouble(newValue);
                 if (value >= 0 && value <= 300) {
@@ -195,7 +194,6 @@ public class SearchController {
     private void initializeStarRating() {
         // Initialize with 1 star selected
         updateStarSelection(1);
-
         // Add click handlers for each star button
         for (int i = 0; i < starButtons.length; i++) {
             final int starValue = i + 1;
@@ -226,28 +224,12 @@ public class SearchController {
     }
 
     /**
-     * Sets the user session reference and initializes user-specific data.
-     *
-     * @param userSession The user session instance
-     */
-    public void setUserSession(UserSession userSession) {
-        this.userSession = userSession;
-
-        // TODO: Get coordinates from user session
-        // Display the current coordinates
-        updateLocationFromSession();
-    }
-
-    /**
      * Updates the location label with coordinates from the user session.
      */
     private void updateLocationFromSession() {
         if (userSession != null) {
-            // TODO: Get coordinates from user session
-            // Example implementation:
             double latitude = 0.0;
             double longitude = 0.0;
-
             double[] coordinates = userSession.getUserCoordinates();
             if (coordinates != null && coordinates.length == 2) {
                 latitude = coordinates[0];
@@ -366,18 +348,13 @@ public class SearchController {
             if (userSession != null) {
                 userSession.logout();
             }
-
             // Load the login view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
             Parent root = loader.load();
-
             // Get the login controller and set the user session
             LoginController loginController = loader.getController();
-            loginController.setUserSession(userSession);
-
             // Get the current stage
             Stage stage = (Stage) logoutButton.getScene().getWindow();
-
             // Set the new scene
             stage.setScene(new Scene(root));
             stage.setTitle("TheKnife - Login");

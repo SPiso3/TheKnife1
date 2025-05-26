@@ -1,5 +1,7 @@
 package it.uninsubria.controller;
 
+import it.uninsubria.dto.UserDTO;
+import it.uninsubria.services.UserService;
 import it.uninsubria.session.UserSession;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +13,10 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +46,7 @@ public class LoginController {
     @FXML
     private Label errorLabel;
     private UserSession userSession;
+    private UserService userService;
 
     /**
      * Initializes the controller.
@@ -47,17 +54,27 @@ public class LoginController {
      */
     @FXML
     private void initialize() {
+        setUserSession();
+        initServices();
         // Clear any error messages
         errorLabel.setText("");
     }
 
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            userService = (UserService) registry.lookup("UserService");
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("Error connecting to UserService: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Sets the user session reference.
-     *
-     * @param userSession The user session instance
      */
-    public void setUserSession(UserSession userSession) {
-        this.userSession = userSession;
+    public void setUserSession() {
+        this.userSession = UserSession.getInstance();
     }
 
     /**
@@ -75,18 +92,19 @@ public class LoginController {
             return;
         }
 
-        // TODO: Connect to backend and validate credentials
-        // For now, simulate a successful login
-        boolean loginSuccess = true; // This will be replaced with actual authentication
+        UserDTO credentials = new UserDTO(username, password);
+        UserDTO userData = null;
+        try {
+            userData = userService.login(credentials);
+        } catch (SecurityException e) {
+            errorLabel.setText(e.getMessage());
+        } catch (RemoteException e) {
+            errorLabel.setText("Server connection error: " + e.getMessage());
+        }
 
-        if (loginSuccess) {
-            // TODO: Store user information in userSession after successful login
-
-            // For demonstration purposes, assume login as client role
-            String role = "client";
-
-            // Navigate to the search view (now the main view for both clients and restaurateurs)
-            navigateToSearchView(role);
+        if (userData != null) {
+            userSession.login(userData);
+            navigateToSearchView();
         } else {
             errorLabel.setText("Invalid username or password");
         }
@@ -143,13 +161,11 @@ public class LoginController {
         try {
             double latitude = Double.parseDouble(latitudeText);
             double longitude = Double.parseDouble(longitudeText);
-
             // Validate coordinate ranges
             if (latitude < -90 || latitude > 90) {
                 errorLabel.setText("Latitude must be between -90 and 90");
                 return;
             }
-
             if (longitude < -180 || longitude > 180) {
                 errorLabel.setText("Longitude must be between -180 and 180");
                 return;
@@ -161,7 +177,7 @@ public class LoginController {
             }
 
             // Navigate to the search view as guest
-            navigateToSearchView(null);
+            navigateToSearchView();
         } catch (NumberFormatException e) {
             errorLabel.setText("Coordinates must be valid numbers");
         } catch (Exception e) {
@@ -171,33 +187,25 @@ public class LoginController {
     }
 
     /**
-     * Navigates to the search view with the specified user role.
-     * For guest access, role will be null.
-     *
-     * @param role User role (client, restaurateur, or null for guest)
+     * Navigates to the search view
      */
-    private void navigateToSearchView(String role) {
+    private void navigateToSearchView() {
         try {
             // Load the search view
             FXMLLoader loader = new FXMLLoader(getClass().getResource("search-view.fxml"));
             Parent root = loader.load();
-
             // Get the search controller and set the user session
             SearchController searchController = loader.getController();
-            if (userSession != null) {
-                searchController.setUserSession(userSession);
-            }
-
             // Get the current stage
-            Stage stage = (Stage) (role == null ? guestButton : loginButton).getScene().getWindow();
+            Stage stage = (Stage) guestButton.getScene().getWindow();
 
             // Set the new scene
             stage.setScene(new Scene(root));
 
             // Set the title based on the access mode
-            if (role == null) {
+            if (!userSession.isLoggedIn()) {
                 stage.setTitle("TheKnife - Guest Search");
-            } else if ("restaurateur".equalsIgnoreCase(role)) {
+            } else if (userSession.getCurrentUser().getRole().equals("OWNER")) {
                 stage.setTitle("TheKnife - Restaurateur");
             } else {
                 stage.setTitle("TheKnife - Client");

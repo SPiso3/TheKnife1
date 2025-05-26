@@ -96,7 +96,7 @@ public class UserSession {
      * @return The user ID of the current user, or null if no user is logged in
      */
     public String getUserId() {
-        return isLoggedIn && currentUser != null ? currentUser.usr_id : null;
+        return isLoggedIn && currentUser != null ? currentUser.getUsername() : null;
     }
 
     /**
@@ -105,7 +105,7 @@ public class UserSession {
      * @return The name of the current user, or null if no user is logged in
      */
     public String getUserName() {
-        return isLoggedIn && currentUser != null ? currentUser.name : null;
+        return isLoggedIn && currentUser != null ? currentUser.getName() : null;
     }
 
     /**
@@ -115,9 +115,9 @@ public class UserSession {
      */
     public double[] getUserCoordinates() {
         if (currentUser != null &&
-                currentUser.latitude != null && currentUser.longitude != null) {
-            System.out.println("returned:"+ currentUser.latitude + currentUser.longitude);
-            return new double[] {currentUser.latitude, currentUser.longitude};
+                currentUser.getLatitude() != null && currentUser.getLongitude() != null) {
+            System.out.println("returned:"+ currentUser.getLatitude() + currentUser.getLongitude());
+            return new double[] {currentUser.getLatitude(), currentUser.getLongitude()};
         }
         return null;
     }

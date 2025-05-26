@@ -53,9 +53,18 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
 
     @Override
     public synchronized void register(UserDTO userData) throws RemoteException, IllegalArgumentException, SecurityException {
-
-        final String insertUserSQL = "INSERT INTO users (username, h_password, name, surname, birth_date, role, address_id) VALUES (?, ?, ?, ?, ?, ?)";
-
+        // check if user already exists
+        if (UserDAO.getUserByID(userData.getUsername()) != null) { // magari mettere un altro check più veloce
+            throw new SecurityException("User already exists"); // to handle better, maybe custom exception
+        }
+        // add address to database and get address id
+        Integer addressId;
+        try {
+            addressId = getAddressId(userData.getAddress());
+        } catch (AddressException e) {
+            throw new IllegalArgumentException("Error adding address to database");
+        }
+        // insert user into database
 
     }
 
