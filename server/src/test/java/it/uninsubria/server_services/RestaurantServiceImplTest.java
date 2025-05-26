@@ -55,16 +55,28 @@ public class RestaurantServiceImplTest extends TestCase {
             List<RestaurantDTO> ownedRestaurants = service.getOwnedRestaurants("Jo_Schaefer6");
             System.out.println("Total owned restaurants found: " + ownedRestaurants.size());
             assertFalse(ownedRestaurants.isEmpty());
-            /*for (RestaurantDTO restaurant : ownedRestaurants) {
+            for (RestaurantDTO restaurant : ownedRestaurants) {
                 System.out.println("Owned Restaurant: " + restaurant.name);
                 System.out.println(restaurant.toString());
-            }*/
+            }
         } catch (RemoteException e) {
             fail("RemoteException should not be thrown when fetching owned restaurants.");
         }
     }
 
     public void testGetReviewedRestaurants() {
+        try {
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            List<RestaurantDTO> reviewedRestaurants = service.getReviewedRestaurants("Alexanne30");
+            System.out.println("Total reviewed restaurants found: " + reviewedRestaurants.size());
+            assertFalse(reviewedRestaurants.isEmpty());
+            for (RestaurantDTO restaurant : reviewedRestaurants) {
+                System.out.println("Reviewed Restaurant: " + restaurant.name);
+                System.out.println(restaurant.toString());
+            }
+        } catch (RemoteException e) {
+            fail("RemoteException should not be thrown when fetching reviewed restaurants.");
+        }
     }
 
     public void testAddFavoriteRestaurant() {

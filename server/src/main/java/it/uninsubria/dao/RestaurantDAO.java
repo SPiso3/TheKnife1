@@ -240,4 +240,21 @@ public class RestaurantDAO {
         }
         return result;
     }
+
+    public static List<RestaurantDTO> getReviewedRestaurants(String userId) {
+        final String query = "SELECT * FROM restaurants WHERE restaurant_id IN " +
+                "(SELECT restaurant_id FROM reviews WHERE username = ?);";
+        List<RestaurantDTO> result = new java.util.ArrayList<RestaurantDTO>(List.of());
+        Connection conn = DBConnection.getConnection();
+        PreparedStatement stmt = null;
+        try {
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, userId);
+            ResultSet res = stmt.executeQuery();
+            result = parseSQLRestaurantResults(res);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }
