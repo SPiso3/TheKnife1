@@ -143,7 +143,6 @@ public class Server
         } catch (Exception e) {
             System.err.println("✗ Test 1 failed: " + e.getMessage());
         }
-
         // Test 2: Wrong password
         try {
             System.out.println("\n--- Test 2: Wrong password ---");
@@ -190,5 +189,19 @@ public class Server
         }
 
         System.out.println("\n=== Login Testing Complete ===");
+
+        // Test 5: Rgister a new user
+        try {
+            System.out.println("\n--- Test 5: Registering a new user ---");
+            UserDTO newUser = new UserDTO("newuser1", "newpassword", "New", "User",
+                    "Italy", "Milan", "Via Roma 1", 45.4642, 9.1900, null, "CLIENT");
+            UserServiceImpl userService = new UserServiceImpl();
+
+            userService.register(newUser);
+            System.out.println("✓ Test 5 passed: New user registered successfully!");
+
+        } catch (Exception e) {
+            System.err.println("✗ Test 5 failed: " + e.getMessage());
+        }
     }
 }

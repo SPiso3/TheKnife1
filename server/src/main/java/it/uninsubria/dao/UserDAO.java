@@ -15,7 +15,8 @@ public class UserDAO {
             WHERE username = ?
             """;
 
-    private static final String QUERY_ADD_USER = "INSERT INTO users (username, h_password, name, surname, birth_date, role, address_id, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String QUERY_ADD_USER = "INSERT INTO users (username, h_password, name, surname, birth_date, role, latitude, longitude, address_id) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
     public static UserDTO getUserByID(String usr) {
@@ -67,9 +68,10 @@ public class UserDAO {
         stmt.setString(3, userData.getName());
         stmt.setString(4, userData.getSurname());
         stmt.setDate(5, userData.getBirthday());
-        stmt.setString(6, userData.getRole());
-        stmt.setInt(7, addressId);
+        stmt.setObject(6, userData.getRole(), Types.OTHER); // Convert ENUM to String
+        stmt.setDouble(7, userData.getLatitude());
+        stmt.setDouble(8, userData.getLongitude());
+        stmt.setInt(9, addressId);
         stmt.executeUpdate();
-        conn.commit();
     }
 }
