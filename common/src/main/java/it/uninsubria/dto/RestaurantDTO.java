@@ -103,7 +103,7 @@ public class RestaurantDTO implements Serializable {
     public String toString() {
         return "RestaurantDTO{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\''
+                ", name='" + name + "', "
                 + address + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
