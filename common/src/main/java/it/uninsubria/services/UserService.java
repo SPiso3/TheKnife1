@@ -1,6 +1,7 @@
 package it.uninsubria.services;
 
 import it.uninsubria.dto.UserDTO;
+import it.uninsubria.exceptions.UserException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -31,5 +32,5 @@ public interface UserService extends Remote {
      * @throws IllegalArgumentException If the provided user data is incomplete or invalid
      * @throws SecurityException If the username is already taken
      */
-    void register(UserDTO userData) throws RemoteException, IllegalArgumentException, SecurityException;
+    void register(UserDTO userData) throws RemoteException, UserException;
 }

@@ -19,6 +19,11 @@ public class UserDAO {
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
+    /**
+     * Retrieves a user by their username.
+     * @param usr username of the user to retrieve
+     * @return UserDTO containing user information, or null if not found
+     */
     public static UserDTO getUserByID(String usr) {
         Connection conn = DBConnection.getConnection();
         try (PreparedStatement stmt = conn.prepareStatement(QUERY_GET_USER_BY_USERID)) {
@@ -60,6 +65,12 @@ public class UserDAO {
     }
 
 
+    /**
+     * Adds a new user to the database.
+     * @param userData UserDTO containing user information
+     * @param addressId ID of the address associated with the user
+     * @throws SQLException if there is an error during the database operation
+     */
     public static synchronized void addUser(UserDTO userData, Integer addressId) throws SQLException {
         Connection conn = DBConnection.getConnection();
         PreparedStatement stmt = conn.prepareStatement(QUERY_ADD_USER);

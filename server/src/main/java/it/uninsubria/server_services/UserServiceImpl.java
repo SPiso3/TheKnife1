@@ -3,6 +3,7 @@ package it.uninsubria.server_services;
 import it.uninsubria.dao.AddressDAO;
 import it.uninsubria.dto.UserDTO;
 import it.uninsubria.dao.UserDAO;
+import it.uninsubria.exceptions.UserException;
 import it.uninsubria.services.UserService;
 
 import java.rmi.RemoteException;
@@ -13,14 +14,6 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
 
     public UserServiceImpl() throws RemoteException {}
 
-    /**
-     * Authenticates a user with the provided credentials.
-     *
-     * @param credentials UserDTO containing username and password
-     * @return UserDTO with user information if authentication successful
-     * @throws RemoteException If a remote communication error occurs
-     * @throws SecurityException If credentials are invalid (user not found or wrong password)
-     */
     @Override
     public synchronized UserDTO login(UserDTO credentials) throws RemoteException, SecurityException {
         String usr = credentials.getUsername();
@@ -43,10 +36,10 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
     }
 
     @Override
-    public synchronized void register(UserDTO userData) throws RemoteException, IllegalArgumentException, SecurityException {
+    public synchronized void register(UserDTO userData) throws RemoteException, UserException {
         // check if user already exists
         if (UserDAO.getUserByID(userData.getUsername()) != null) { // magari mettere un altro check più veloce
-            throw new SecurityException("User already exists"); // to handle better, maybe custom exception
+            throw new UserException("User already exists"); // to handle better, maybe custom exception
         }
         // add address to database and get address id
         Integer addressId = AddressDAO.getAddressId(userData.getAddress());
@@ -54,7 +47,7 @@ public class UserServiceImpl extends UnicastRemoteObject implements UserService 
         try {
             UserDAO.addUser(userData, addressId);
         } catch (SQLException e) {
-            throw new RuntimeException("Error adding user to database", e);
+            throw new RemoteException("Error adding user to database");
         }
     }
 }
