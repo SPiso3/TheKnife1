@@ -234,8 +234,26 @@ public class SearchController {
      */
     @FXML
     private void handleUserArea() {
-        // TODO: Implement navigation to user area
-        updateStatus("User area navigation not implemented yet");
+        try {
+            // Load the my area view
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("my-area-view.fxml"));
+            Parent root = loader.load();
+
+            // Get the my area controller (it will initialize itself with the current session)
+            MyAreaController myAreaController = loader.getController();
+
+            // Get the current stage and replace the scene
+            Stage stage = (Stage) userAreaButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("TheKnife - My Area");
+
+            updateStatus("Navigated to My Area");
+            LOGGER.info("User navigated to My Area");
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error loading my area view", e);
+            updateStatus("Error loading My Area: " + e.getMessage());
+        }
     }
 
     /**

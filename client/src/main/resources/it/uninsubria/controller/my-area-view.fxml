@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="500.0" minWidth="700.0" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.uninsubria.controller.MyAreaController">
+    <children>
+        <VBox spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <!-- Top Bar with Logo and Navigation -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;">
+                    <children>
+                        <Label text="TheKnife" textFill="#1a73e8">
+                            <font>
+                                <Font name="System Bold" size="24.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="titleLabel" text="My Area - Client">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button fx:id="backToSearchButton" mnemonicParsing="false" onAction="#handleBackToSearch" text="Back to Search" />
+                                <Button fx:id="logoutButton" mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                    </padding>
+                </HBox>
+
+                <!-- User Welcome Section -->
+                <VBox spacing="8.0">
+                    <children>
+                        <Label fx:id="welcomeLabel" text="Welcome to your area, username!" textFill="#333333">
+                            <font>
+                                <Font name="System Bold" size="18.0" />
+                            </font>
+                        </Label>
+                        <HBox spacing="30.0">
+                            <children>
+                                <Label fx:id="leftStatsLabel" text="My Favorites: 0 restaurants" textFill="#666666">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="averageRatingLabel" text="Average rating: N/A" textFill="#666666">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="reviewedStatsLabel" text="Reviewed restaurants: 0" textFill="#666666">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets left="20.0" right="20.0" />
+                    </padding>
+                </VBox>
+
+                <Separator />
+
+                <!-- Main Content Area -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <!-- Left Panel: Favorites/Owned Restaurants -->
+                        <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <TitledPane fx:id="leftTitledPane" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="My Favorites" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox fx:id="leftResultsContainer" spacing="10.0">
+                                            <padding>
+                                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                            </padding>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+
+                                <!-- Action Button -->
+                                <Button fx:id="actionButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleActionButton" prefHeight="40.0" text="Find More Restaurants">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+
+                        <!-- Right Panel: Reviewed Restaurants -->
+                        <VBox spacing="15.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <TitledPane fx:id="rightTitledPane" animated="false" collapsible="false" maxHeight="1.7976931348623157E308" text="My Reviews" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <VBox fx:id="rightResultsContainer" spacing="10.0">
+                                            <padding>
+                                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                            </padding>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
+                    </padding>
+                </HBox>
+
+                <!-- Status Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #f5f5f5; -fx-border-color: #e0e0e0; -fx-border-width: 1 0 0 0;">
+                    <children>
+                        <Label fx:id="statusLabel" text="Loading your data..." />
+                    </children>
+                    <padding>
+                        <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -76,6 +76,7 @@ public class UserSession {
      * @return true if the current user is a restaurateur, false otherwise
      */
     public boolean isOwner() {
+        System.out.println(currentUser.getRole());
         return isLoggedIn && currentUser != null &&
                 "owner".equalsIgnoreCase(currentUser.getRole());
     }
@@ -86,6 +87,10 @@ public class UserSession {
      * @return true if the current user is a client, false otherwise
      */
     public boolean isClient() {
+        System.out.println(currentUser.getRole());
+        System.out.println(isLoggedIn);
+        System.out.println(currentUser != null);
+        System.out.println("client".equalsIgnoreCase(currentUser.getRole()));
         return isLoggedIn && currentUser != null &&
                 "client".equalsIgnoreCase(currentUser.getRole());
     }
