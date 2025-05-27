@@ -152,10 +152,16 @@ public class ReviewCardComponent extends VBox {
      * @return Label containing the review text
      */
     private Label createReviewTextLabel() {
-        Label reviewTextLabel = new Label(review.customer_msg);
+        Label reviewTextLabel = new Label();
         reviewTextLabel.setWrapText(true);
         reviewTextLabel.setStyle("-fx-text-fill: #333333; -fx-font-size: 13px;");
         reviewTextLabel.setMaxWidth(Double.MAX_VALUE);
+
+        // Handle null customer message
+        if (review.customer_msg == null) {
+            reviewTextLabel.setText("");
+            return reviewTextLabel;
+        }
 
         // Limit display length for long reviews
         String displayText = review.customer_msg;

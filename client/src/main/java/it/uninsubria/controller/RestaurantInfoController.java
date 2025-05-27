@@ -3,6 +3,8 @@ package it.uninsubria.controller;
 import it.uninsubria.controller.ui_components.GenericResultsComponent;
 import it.uninsubria.dto.RestaurantDTO;
 import it.uninsubria.dto.ReviewDTO;
+import it.uninsubria.services.RestaurantService;
+import it.uninsubria.services.ReviewService;
 import it.uninsubria.session.UserSession;
 import it.uninsubria.utilclient.ClientUtil;
 import javafx.fxml.FXML;
@@ -16,6 +18,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,20 +47,19 @@ public class RestaurantInfoController {
     @FXML private Label priceLabel;
     @FXML private Label deliveryLabel;
     @FXML private Label bookingLabel;
-
     // Action buttons
     @FXML private Button addToFavoritesButton;
     @FXML private Button addReviewButton;
-
     // Reviews section
     @FXML private Label reviewsSectionLabel;
     @FXML private VBox reviewsContainer;
-
     // Data and components
     private RestaurantDTO restaurant;
     private UserSession userSession;
     private GenericResultsComponent reviewsComponent;
-
+    private RestaurantService restaurantService;
+    private ReviewService reviewService;
+    private List<ReviewDTO> reviews;
     /**
      * Initializes the controller.
      * This method is automatically called after the FXML file has been loaded.
@@ -62,10 +67,22 @@ public class RestaurantInfoController {
     @FXML
     private void initialize() {
         userSession = UserSession.getInstance();
-        setupReviewsComponent();
+        initServices();
 
+        setupReviewsComponent();
         // Initially hide buttons until restaurant data is set
         updateButtonVisibility();
+    }
+
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            restaurantService = (RestaurantService) registry.lookup("RestaurantService");
+            reviewService = (ReviewService) registry.lookup("ReviewService");
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("Error connecting to UserService: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -97,24 +114,18 @@ public class RestaurantInfoController {
      */
     private void updateRestaurantInfo() {
         if (restaurant == null) return;
-
         // Basic info
         restaurantNameLabel.setText(restaurant.name);
         cuisineLocationLabel.setText(restaurant.cuisine.getDisplayName() + " • " + restaurant.getCity());
-
         // Address and location
         addressLabel.setText(restaurant.getStreet() + ", " + restaurant.getCity() + ", " + restaurant.getCountry());
         coordinatesLabel.setText(String.format("%.4f, %.4f", restaurant.latitude, restaurant.longitude));
-
         // Distance calculation
         updateDistanceDisplay();
-
         // Rating
         updateRatingDisplay();
-
         // Price
         priceLabel.setText(String.format("€%.0f average price", restaurant.avg_price));
-
         // Services
         updateServicesDisplay();
     }
@@ -178,14 +189,11 @@ public class RestaurantInfoController {
         try {
             // Show loading state
             reviewsComponent.showLoadingReviews();
-
             // Load reviews
-            // TODO: Replace with actual RMI call when server is ready
-            List<ReviewDTO> reviews = ClientUtil.getReviewList(restaurant.id);
+            reviews = reviewService.getReviews(restaurant.id);
 
             // Update reviews display
             reviewsComponent.showReviews(reviews);
-
             // Update section title
             reviewsSectionLabel.setText(String.format("Customer Reviews (%d)", reviews.size()));
 
@@ -209,18 +217,42 @@ public class RestaurantInfoController {
         boolean isClient = userSession.isClient();
         boolean isOwner = userSession.isOwner();
         boolean isRestaurantOwner = isOwner && restaurant.owner_usrId.equals(userSession.getUserId());
+        boolean hasReviewed = false;
+        for(ReviewDTO review: reviews){
+            if(review.usr_id.equals(userSession.getUserId())){
+                hasReviewed = true;
+                break;
+            }
+        }
 
         // Add to Favorites: Only visible to clients
         addToFavoritesButton.setVisible(isLoggedIn && isClient);
-
         // Add Review: Visible to logged-in clients and owners who don't own this restaurant
         addReviewButton.setVisible(isLoggedIn && (isClient || (isOwner && !isRestaurantOwner)));
+        if(hasReviewed){
+            addReviewButton.setText("Update Review");
+        }
 
-        // Update favorites button text
-        // TODO: Check if restaurant is in favorites and update text accordingly
-        // For now, always show "Add to Favorites"
+        // Check if restaurant is in favorites and update text accordingly (it's ugly, I know)
+        List<RestaurantDTO> favourites;
+        try {
+            favourites = restaurantService.getFavoriteRestaurants(userSession.getUserId());
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        boolean isFavorite = false;
+        for (RestaurantDTO rest: favourites) {
+           if(rest.id.equals(restaurant.id)){
+               isFavorite = true;
+               break;
+           }
+        }
         if (addToFavoritesButton.isVisible()) {
-            addToFavoritesButton.setText("Add to Favorites");
+            if (!isFavorite) {
+                addToFavoritesButton.setText("Add to Favorites");
+            } else {
+                addToFavoritesButton.setText("Remove from Favorites");
+            }
         }
     }
 
@@ -232,15 +264,18 @@ public class RestaurantInfoController {
         if (!userSession.isLoggedIn() || !userSession.isClient()) {
             return;
         }
-
-        // TODO: Implement RMI call to add/remove from favorites
-        // For now, just toggle button text
-        if (addToFavoritesButton.getText().equals("Add to Favorites")) {
-            addToFavoritesButton.setText("Remove from Favorites");
-            LOGGER.info("Added restaurant " + restaurant.name + " to favorites");
-        } else {
-            addToFavoritesButton.setText("Add to Favorites");
-            LOGGER.info("Removed restaurant " + restaurant.name + " from favorites");
+        try {
+            if (addToFavoritesButton.getText().equals("Add to Favorites")) {
+                restaurantService.addFavoriteRestaurant(userSession.getUserId(), restaurant.id);
+                addToFavoritesButton.setText("Remove from Favorites");
+                LOGGER.info("Added restaurant " + restaurant.name + " to favorites");
+            } else {
+                restaurantService.removeFavoriteRestaurant(userSession.getUserId(), restaurant.id);
+                addToFavoritesButton.setText("Add to Favorites");
+                LOGGER.info("Removed restaurant " + restaurant.name + " from favorites");
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -254,15 +289,25 @@ public class RestaurantInfoController {
             return;
         }
 
+        ReviewDTO oldReview = null;
+        for(ReviewDTO review: reviews){
+            if(review.usr_id.equals(userSession.getUserId())){
+                oldReview = review;
+                break;
+            }
+
+        }
+
         try {
             // Load the add review FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("add-review-view.fxml"));
             Parent root = loader.load();
 
-            // Get the controller and set it for review mode
             AddReviewController controller = loader.getController();
-            controller.setForReview(restaurant);
-
+            controller.setRestaurant(restaurant); // da fare prima di setReview()
+            if(oldReview != null){
+                controller.setReview(oldReview);
+            }
             // Create modal stage for add review
             Stage reviewStage = new Stage();
             reviewStage.setTitle("Write Review - " + restaurant.name);
@@ -276,8 +321,6 @@ public class RestaurantInfoController {
             // Show the window (modal) and wait for it to close
             reviewStage.showAndWait();
 
-            // TODO: When RMI is implemented, the review will be submitted to server
-            // After the window closes, refresh reviews to show the new review
             loadReviews();
 
         } catch (IOException e) {
@@ -320,30 +363,27 @@ public class RestaurantInfoController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("add-reply-view.fxml"));
             Parent root = loader.load();
 
-            // Get the controller and set the review
             AddReplyController controller = loader.getController();
             controller.setReview(review);
 
-            // Create modal stage for reply
             Stage replyStage = new Stage();
             replyStage.setTitle("Reply to Review - " + restaurant.name);
             replyStage.setScene(new Scene(root));
 
-            // Set window properties for proper modal behavior
+            // Set model window
             replyStage.setResizable(false);
             replyStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
             replyStage.initOwner(addReviewButton.getScene().getWindow());
-
             // Center the modal window relative to parent
             Stage parentStage = (Stage) addReviewButton.getScene().getWindow();
             replyStage.setX(parentStage.getX() + (parentStage.getWidth() - 650) / 2);
             replyStage.setY(parentStage.getY() + (parentStage.getHeight() - 550) / 2);
 
-            // Show the window (modal) and wait for it to close
             replyStage.showAndWait();
 
             // After the window closes, refresh reviews to show the updated reply
             loadReviews();
+            // può servire un metodo per cambiare il pulsante a update review..
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error loading reply view", e);

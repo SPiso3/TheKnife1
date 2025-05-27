@@ -106,6 +106,7 @@
         <!-- Action Buttons -->
         <HBox alignment="CENTER_RIGHT" spacing="15.0">
             <children>
+                <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#handleDeleteReview" prefHeight="35.0" prefWidth="120.0" text="Delete Review" visible="false" style="-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-weight: bold;" />
                 <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" prefHeight="35.0" prefWidth="100.0" text="Cancel" />
                 <Button fx:id="submitButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSubmit" prefHeight="35.0" prefWidth="120.0" text="Submit Review">
                     <font>

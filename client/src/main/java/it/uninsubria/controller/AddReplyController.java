@@ -1,13 +1,20 @@
 package it.uninsubria.controller;
 
 import it.uninsubria.dto.ReviewDTO;
+import it.uninsubria.services.ReviewService;
 import it.uninsubria.session.UserSession;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -21,30 +28,25 @@ public class AddReplyController {
 
     private static final Logger LOGGER = Logger.getLogger(AddReplyController.class.getName());
     private static final int MAX_REPLY_LENGTH = 800; // Maximum reply length
-
     // Header components
     @FXML private Label restaurantNameLabel;
-
     // Original review display components
     @FXML private Label customerNameLabel;
     @FXML private Label ratingStarsLabel;
     @FXML private Label ratingLabel;
     @FXML private Label customerReviewLabel;
-
     // Error display
     @FXML private Label errorLabel;
-
     // Reply text components
     @FXML private TextArea replyTextArea;
     @FXML private Label characterCountLabel;
-
     // Action buttons
     @FXML private Button cancelButton;
     @FXML private Button submitButton;
-
     // Data and state
     private ReviewDTO originalReview;
     private UserSession userSession;
+    private ReviewService reviewService;
 
     /**
      * Initializes the controller.
@@ -54,8 +56,19 @@ public class AddReplyController {
     private void initialize() {
         userSession = UserSession.getInstance();
 
+        initServices();
         // Setup text area functionality
         initializeTextArea();
+    }
+
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            reviewService = (ReviewService) registry.lookup("ReviewService");
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("Error connecting to ReviewService: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -212,7 +225,29 @@ public class AddReplyController {
         }
 
         String replyText = replyTextArea.getText().trim();
-        handleReplySubmission(replyText);
+        try {
+            handleReplySubmission(replyText);
+
+            // Show success message
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Reply Added");
+            alert.setHeaderText("Successfully submitted Reply");
+            alert.setContentText("Thank you for sharing your experience");
+            alert.showAndWait();
+
+            // Navigate back to My Area
+            handleCancel();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error registering restaurant", e);
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Add Reply Failed");
+            alert.setHeaderText("The Reply could not be submitted");
+            alert.setContentText("We are sorry for the inconvenience. Please try again later.");
+            alert.showAndWait();
+
+        }
 
         // Close the modal window
         closeWindow();
@@ -224,26 +259,12 @@ public class AddReplyController {
      * @param replyText The reply text content
      */
     private void handleReplySubmission(String replyText) {
-        // Create updated review DTO with reply
-        ReviewDTO updatedReview = new ReviewDTO(
-                originalReview.usr_id,
-                originalReview.rest_id,
-                originalReview.customer_msg,
-                originalReview.rating,
-                replyText
-        );
-
-        // TODO: Replace with actual RMI call to ReviewService.createOrUpdateReply()
-        System.out.println("=== RESTAURANT REPLY SUBMISSION ===");
-        System.out.println("Restaurant Owner ID: " + userSession.getUserId());
-        System.out.println("Original Review User: " + originalReview.usr_id);
-        System.out.println("Restaurant ID: " + originalReview.rest_id);
-        System.out.println("Original Review: " + originalReview.customer_msg);
-        System.out.println("Original Rating: " + originalReview.rating + " stars");
-        System.out.println("Reply Text: " + replyText);
-        System.out.println("Updated Review DTO: " + updatedReview.toString());
-        System.out.println("==================================");
-
+        originalReview.rest_rep = replyText;
+        try {
+            reviewService.createOrUpdateReview(originalReview);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         LOGGER.info("Reply submitted successfully for review by: " + originalReview.usr_id);
     }
 

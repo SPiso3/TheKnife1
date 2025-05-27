@@ -2,20 +2,23 @@ package it.uninsubria.controller;
 
 import it.uninsubria.dto.RestaurantDTO;
 import it.uninsubria.dto.ReviewDTO;
+import it.uninsubria.services.ReviewService;
 import it.uninsubria.session.UserSession;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Controller class for the add review modal window.
- * Handles both creating new reviews and replying to existing reviews.
- * This controller manages the star rating system and review text input.
+ * Handles creating new reviews for restaurants with star rating and text input,
+ * as well as editing and deleting existing reviews.
  *
  * @author Sergio Enrico Pisoni, 755563, VA
  */
@@ -24,35 +27,30 @@ public class AddReviewController {
     private static final Logger LOGGER = Logger.getLogger(AddReviewController.class.getName());
     private static final int MAX_REVIEW_LENGTH = 1000; // Maximum review length
 
-    // Header components
+    // FXML components
     @FXML private Label titleLabel;
     @FXML private Label restaurantNameLabel;
-
-    // Rating components
     @FXML private ToggleButton star1Button;
     @FXML private ToggleButton star2Button;
     @FXML private ToggleButton star3Button;
     @FXML private ToggleButton star4Button;
     @FXML private ToggleButton star5Button;
     @FXML private Label ratingLabel;
-
-    // Review text components
     @FXML private TextArea reviewTextArea;
     @FXML private Label characterCountLabel;
-
-    // Error display
     @FXML private Label errorLabel;
-    // Action buttons
     @FXML private Button cancelButton;
     @FXML private Button submitButton;
+    @FXML private Button deleteButton;
 
     // Data and state
     private ToggleButton[] starButtons;
     private int currentRatingSelection = 1;
     private RestaurantDTO restaurant;
-    private ReviewDTO existingReview; // For reply mode
-    private boolean isReplyMode = false;
     private UserSession userSession;
+    private ReviewService reviewService;
+    private boolean isEditingMode = false;
+    private ReviewDTO existingReview = null;
 
     /**
      * Initializes the controller.
@@ -61,77 +59,103 @@ public class AddReviewController {
     @FXML
     private void initialize() {
         userSession = UserSession.getInstance();
+        initServices();
 
         // Initialize star buttons array
         starButtons = new ToggleButton[]{star1Button, star2Button, star3Button, star4Button, star5Button};
 
-        // Setup star rating functionality
+        // Setup components
         initializeStarRating();
-
-        // Setup text area functionality
         initializeTextArea();
-
-        // Apply star button styling
         applyStarStyling();
-    }
 
-    /**
-     * Sets up the controller for writing a new review for a restaurant.
-     *
-     * @param restaurant The restaurant to review
-     */
-    public void setForReview(RestaurantDTO restaurant) {
-        this.restaurant = restaurant;
-        this.isReplyMode = false;
-
-        // Update UI for review mode
+        // Set static UI elements
         titleLabel.setText("Write a Review");
-        restaurantNameLabel.setText(restaurant.name);
         submitButton.setText("Submit Review");
         reviewTextArea.setPromptText("Share your experience at this restaurant...");
 
-        // Reset to default state
+        // Initialize with default state
         updateStarSelection(1);
-        reviewTextArea.clear();
         updateCharacterCount();
+
+        // Delete button is initially hidden (will be shown only in edit mode)
+        deleteButton.setVisible(false);
+        // Don't set managed=false here, let JavaFX handle it
     }
 
     /**
-     * Sets up the controller for replying to an existing review.
-     *
-     * @param review The review to reply to
-     * @param restaurant The restaurant associated with the review
+     * Initializes the RMI services.
      */
-    public void setForReply(ReviewDTO review, RestaurantDTO restaurant) {
-        this.existingReview = review;
-        this.restaurant = restaurant;
-        this.isReplyMode = true;
-
-        // Update UI for reply mode
-        titleLabel.setText("Reply to Review");
-        restaurantNameLabel.setText(restaurant.name + " - Reply to " + review.usr_id);
-        submitButton.setText("Submit Reply");
-        reviewTextArea.setPromptText("Write your response to this review...");
-
-        // Disable star rating for replies
-        disableStarRating();
-
-        // Pre-fill with existing reply if it exists
-        if (review.rest_rep != null && !review.rest_rep.trim().isEmpty()) {
-            reviewTextArea.setText(review.rest_rep);
-        } else {
-            reviewTextArea.clear();
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            reviewService = (ReviewService) registry.lookup("ReviewService");
+        } catch (NotBoundException | RemoteException e) {
+            LOGGER.log(Level.SEVERE, "Error connecting to ReviewService: " + e.getMessage(), e);
+            showError("Unable to connect to review service. Please try again later.");
         }
-        updateCharacterCount();
+    }
+
+    /**
+     * Sets the restaurant for this review.
+     * This method should be called after the controller is loaded for creating a new review.
+     *
+     * @param restaurant The restaurant to review
+     */
+    public void setRestaurant(RestaurantDTO restaurant) {
+        this.restaurant = restaurant;
+        this.isEditingMode = false;
+        this.existingReview = null;
+
+        restaurantNameLabel.setText(restaurant.name);
+
+        // Hide delete button for new reviews
+        deleteButton.setVisible(false);
+
+        LOGGER.info("Set restaurant for new review: " + restaurant.name + ", delete button hidden");
+    }
+
+    /**
+     * Sets an existing review for editing.
+     * This method populates the form fields with the existing review data.
+     *
+     * @param review The existing review to edit
+     */
+    public void setReview(ReviewDTO review) {
+        if (review != null) {
+            this.existingReview = review;
+            this.isEditingMode = true;
+
+            // Set the restaurant info
+            this.restaurant = new RestaurantDTO();
+            this.restaurant.id = review.rest_id;
+
+            // Update title for editing mode
+            titleLabel.setText("Edit Review");
+            submitButton.setText("Update Review");
+
+            // Set the rating
+            updateStarSelection(review.rating);
+
+            // Set the review text
+            if (review.customer_msg != null) {
+                reviewTextArea.setText(review.customer_msg);
+            }
+
+            // Update character count
+            updateCharacterCount();
+
+            // Show delete button for existing reviews
+            deleteButton.setVisible(true);
+
+            LOGGER.info("Set review for editing, delete button should be visible: " + deleteButton.isVisible());
+        }
     }
 
     /**
      * Initializes the star rating functionality.
      */
     private void initializeStarRating() {
-        // Initialize with 1 star selected
-        updateStarSelection(1);
-
         // Add click handlers for each star button
         for (int i = 0; i < starButtons.length; i++) {
             final int starValue = i + 1;
@@ -149,34 +173,19 @@ public class AddReviewController {
             return;
         }
 
-        // Update current selection
         currentRatingSelection = rating;
 
-        // Clear all selections first
-        for (ToggleButton star : starButtons) {
-            star.setSelected(false);
-        }
-
-        // Set selected state for stars up to the rating value
-        for (int i = 0; i < rating; i++) {
-            starButtons[i].setSelected(true);
+        // Update star button states
+        for (int i = 0; i < starButtons.length; i++) {
+            starButtons[i].setSelected(i < rating);
         }
 
         // Update rating label
-        ratingLabel.setText(rating + " stars selected");
+        String starText = rating == 1 ? "star" : "stars";
+        ratingLabel.setText(rating + " " + starText + " selected");
 
         // Clear any rating-related errors
         hideError();
-    }
-
-    /**
-     * Disables the star rating section for reply mode.
-     */
-    private void disableStarRating() {
-        for (ToggleButton star : starButtons) {
-            star.setDisable(true);
-        }
-        ratingLabel.setText("Rating not applicable for replies");
     }
 
     /**
@@ -187,24 +196,13 @@ public class AddReviewController {
         String unselectedStyle = "-fx-background-color: #f5f5f5; -fx-text-fill: #cccccc; -fx-border-color: #e0e0e0; -fx-border-width: 1;";
 
         for (ToggleButton star : starButtons) {
-            // Ensure star symbol is always visible
             star.setText("★");
-
-            // Set initial style
-            star.setStyle(unselectedStyle);
 
             // Add style change listeners
             star.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    star.setStyle(selectedStyle);
-                } else {
-                    star.setStyle(unselectedStyle);
-                }
+                star.setStyle(newValue ? selectedStyle : unselectedStyle);
             });
         }
-
-        // Apply initial styling based on selection
-        updateStarSelection(currentRatingSelection);
     }
 
     /**
@@ -225,9 +223,6 @@ public class AddReviewController {
                 reviewTextArea.setText(oldValue);
             }
         });
-
-        // Initialize character count
-        updateCharacterCount();
     }
 
     /**
@@ -253,6 +248,18 @@ public class AddReviewController {
      * @return true if the form is valid, false otherwise
      */
     private boolean validateForm() {
+        // Check if restaurant is set
+        if (restaurant == null) {
+            showError("No restaurant selected. Please try again.");
+            return false;
+        }
+
+        // Check if user is logged in
+        if (!userSession.isLoggedIn()) {
+            showError("You must be logged in to write a review.");
+            return false;
+        }
+
         // Check if review text is provided
         String reviewText = reviewTextArea.getText().trim();
         if (reviewText.isEmpty()) {
@@ -266,13 +273,122 @@ public class AddReviewController {
             return false;
         }
 
-        // For review mode, rating is required
-        if (!isReplyMode && (currentRatingSelection < 1 || currentRatingSelection > 5)) {
+        // Check rating selection
+        if (currentRatingSelection < 1 || currentRatingSelection > 5) {
             showError("Please select a rating before submitting.");
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Handles the submit button action.
+     * Validates and submits the review.
+     */
+    @FXML
+    private void handleSubmit() {
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            // Create review DTO
+            ReviewDTO newReview = new ReviewDTO(
+                    userSession.getUserId(),
+                    restaurant.id,
+                    reviewTextArea.getText().trim(),
+                    currentRatingSelection
+            );
+
+            // Submit review via service
+            boolean success = reviewService.createOrUpdateReview(newReview);
+            if (success) {
+                String operationType = isEditingMode ? "updated" : "added";
+                String titleText = isEditingMode ? "Review Updated" : "Review Added";
+                String headerText = isEditingMode ? "Successfully updated review" : "Successfully submitted review";
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle(titleText);
+                alert.setHeaderText(headerText);
+                alert.setContentText("Thank you for sharing your experience");
+                alert.showAndWait();
+
+                LOGGER.info("Review " + operationType + " successfully for restaurant " + restaurant.id);
+                closeWindow();
+            } else {
+                String operationType = isEditingMode ? "Update" : "Add";
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle(operationType + " Review Failed");
+                alert.setHeaderText("The review could not be " + (isEditingMode ? "updated" : "submitted"));
+                alert.setContentText("We are sorry for the inconvenience. Please try again later.");
+                alert.showAndWait();
+                showError("Failed to " + (isEditingMode ? "update" : "submit") + " review. Please try again.");
+            }
+
+        } catch (RemoteException e) {
+            LOGGER.log(Level.SEVERE, "Error submitting review", e);
+            showError("Network error occurred. Please check your connection and try again.");
+        }
+    }
+
+    /**
+     * Handles the delete review button action.
+     * Deletes the current review after validation.
+     */
+    @FXML
+    private void handleDeleteReview() {
+        // Validate that we're in editing mode and have a review to delete
+        if (!isEditingMode || existingReview == null) {
+            showError("No review to delete.");
+            return;
+        }
+
+        // Check if user is logged in
+        if (!userSession.isLoggedIn()) {
+            showError("You must be logged in to delete a review.");
+            return;
+        }
+
+        try {
+            // Call the delete service
+            boolean success = reviewService.deleteReview(userSession.getUserId(), restaurant.id);
+
+            if (success) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Review Deleted");
+                alert.setHeaderText("Review successfully deleted");
+                alert.setContentText("Your review has been removed from the restaurant");
+                alert.showAndWait();
+
+                LOGGER.info("Review deleted successfully for restaurant " + restaurant.id + " by user " + userSession.getUserId());
+                closeWindow();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Delete Review Failed");
+                alert.setHeaderText("The review could not be deleted");
+                alert.setContentText("We are sorry for the inconvenience. Please try again later.");
+                alert.showAndWait();
+                showError("Failed to delete review. Please try again.");
+            }
+
+        } catch (SecurityException e) {
+            LOGGER.log(Level.WARNING, "Security error deleting review: " + e.getMessage(), e);
+            showError("You don't have permission to delete this review.");
+        } catch (RemoteException e) {
+            LOGGER.log(Level.SEVERE, "Error deleting review", e);
+            showError("Network error occurred. Please check your connection and try again.");
+        }
+    }
+
+    /**
+     * Handles the cancel button action.
+     * Closes the modal window without saving changes.
+     */
+    @FXML
+    private void handleCancel() {
+        LOGGER.info("Review operation cancelled by user");
+        closeWindow();
     }
 
     /**
@@ -291,94 +407,6 @@ public class AddReviewController {
     private void hideError() {
         errorLabel.setVisible(false);
         errorLabel.setText("");
-    }
-
-    /**
-     * Handles the submit button action.
-     * Creates the review or reply and submits it to the system.
-     */
-    @FXML
-    private void handleSubmit() {
-        if (!validateForm()) {
-            return;
-        }
-
-        String reviewText = reviewTextArea.getText().trim();
-        String userId = userSession.getUserId();
-
-        if (isReplyMode) {
-            // Handle restaurant reply submission
-            handleReplySubmission(reviewText);
-        } else {
-            // Handle new review submission
-            handleReviewSubmission(userId, reviewText);
-        }
-
-        // Close the modal window
-        closeWindow();
-    }
-
-    /**
-     * Handles submitting a new review.
-     *
-     * @param userId The ID of the user submitting the review
-     * @param reviewText The review text content
-     */
-    private void handleReviewSubmission(String userId, String reviewText) {
-        // Create new review DTO
-        ReviewDTO newReview = new ReviewDTO(userId, restaurant.id, reviewText, currentRatingSelection);
-
-        // TODO: Replace with actual RMI call to ReviewService.createOrUpdateReview()
-        System.out.println("=== NEW REVIEW SUBMISSION ===");
-        System.out.println("User ID: " + userId);
-        System.out.println("Restaurant ID: " + restaurant.id);
-        System.out.println("Restaurant Name: " + restaurant.name);
-        System.out.println("Rating: " + currentRatingSelection + " stars");
-        System.out.println("Review Text: " + reviewText);
-        System.out.println("Review DTO: " + newReview.toString());
-        System.out.println("=============================");
-
-        LOGGER.info("Review submitted successfully for restaurant: " + restaurant.name);
-    }
-
-    /**
-     * Handles submitting a restaurant reply to a review.
-     *
-     * @param replyText The reply text content
-     */
-    private void handleReplySubmission(String replyText) {
-        // Create updated review DTO with reply
-        ReviewDTO updatedReview = new ReviewDTO(
-                existingReview.usr_id,
-                existingReview.rest_id,
-                existingReview.customer_msg,
-                existingReview.rating,
-                replyText
-        );
-
-        // TODO: Replace with actual RMI call to ReviewService.createOrUpdateReply()
-        System.out.println("=== RESTAURANT REPLY SUBMISSION ===");
-        System.out.println("Restaurant Owner ID: " + userSession.getUserId());
-        System.out.println("Original Review User: " + existingReview.usr_id);
-        System.out.println("Restaurant ID: " + restaurant.id);
-        System.out.println("Restaurant Name: " + restaurant.name);
-        System.out.println("Original Review: " + existingReview.customer_msg);
-        System.out.println("Original Rating: " + existingReview.rating + " stars");
-        System.out.println("Reply Text: " + replyText);
-        System.out.println("Updated Review DTO: " + updatedReview.toString());
-        System.out.println("==================================");
-
-        LOGGER.info("Reply submitted successfully for review by: " + existingReview.usr_id);
-    }
-
-    /**
-     * Handles the cancel button action.
-     * Closes the modal window without saving changes.
-     */
-    @FXML
-    private void handleCancel() {
-        LOGGER.info("Review/reply cancelled by user");
-        closeWindow();
     }
 
     /**
@@ -408,11 +436,20 @@ public class AddReviewController {
     }
 
     /**
-     * Checks if the controller is in reply mode.
+     * Checks if the controller is in editing mode.
      *
-     * @return true if in reply mode, false if in review mode
+     * @return true if editing an existing review, false if creating new
      */
-    public boolean isReplyMode() {
-        return isReplyMode;
+    public boolean isEditingMode() {
+        return isEditingMode;
+    }
+
+    /**
+     * Gets the existing review being edited.
+     *
+     * @return The existing review DTO, or null if creating a new review
+     */
+    public ReviewDTO getExistingReview() {
+        return existingReview;
     }
 }
