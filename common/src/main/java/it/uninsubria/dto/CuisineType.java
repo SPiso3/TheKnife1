@@ -9,37 +9,6 @@ import java.io.Serializable;
  * @author Sergio Enrico Pisoni, 755563, VA
  */
 public enum CuisineType implements Serializable {
-    AMERICAN("American"),
-    ASIAN("Asian"),
-    BARBECUE("Barbecue"),
-    CHINESE("Chinese"),
-    CONTEMPORARY("Contemporary"),
-    EUROPEAN("European"),
-    FRENCH("French"),
-    FUSION("Fusion"),
-    GERMAN("German"),
-    GREEK("Greek"),
-    INDIAN("Indian"),
-    INTERNATIONAL("International"),
-    ITALIAN("Italian"),
-    JAPANESE("Japanese"),
-    KOREAN("Korean"),
-    LEBANESE("Lebanese"),
-    MEDITERRANEAN("Mediterranean Cuisine"),
-    MEXICAN("Mexican"),
-    MIDDLE_EASTERN("Middle Eastern"),
-    MOROCCAN("Moroccan"),
-    PIZZA("Pizza"),
-    SEAFOOD("Seafood"),
-    SPANISH("Spanish"),
-    STEAKHOUSE("Steakhouse"),
-    STREET_FOOD("Street Food"),
-    SUSHI("Sushi"),
-    THAI("Thai"),
-    TURKISH("Turkish"),
-    VEGAN("Vegan"),
-    VIETNAMESE("Vietnamese");
-    /*
     AFGHAN("Afghan"),
     AFRICAN("African"),
     ALPINE("Alpine"),
@@ -317,7 +286,6 @@ public enum CuisineType implements Serializable {
     YUKHOE("Yukhoe"),
     YUNNANESE("Yunnanese"),
     ZHEJIANG("Zhejiang");
-    */
 
     private static final long serialVersionUID = 1L;
 

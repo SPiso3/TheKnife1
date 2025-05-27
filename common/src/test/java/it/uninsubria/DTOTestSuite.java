@@ -153,7 +153,7 @@ public class DTOTestSuite extends TestCase {
         assertEquals("Italian display name should match", "Italian", CuisineType.ITALIAN.getDisplayName());
         assertEquals("Pizza display name should match", "Pizza", CuisineType.PIZZA.getDisplayName());
         assertEquals("Japanese display name should match", "Japanese", CuisineType.JAPANESE.getDisplayName());
-        assertEquals("Mediterranean display name should match", "Mediterranean Cuisine", CuisineType.MEDITERRANEAN.getDisplayName());
+        assertEquals("Mediterranean display name should match", "Mediterranean Cuisine", CuisineType.MEDITERRANEAN_CUISINE.getDisplayName());
     }
 
     public void testCuisineTypeFromDisplayName() {

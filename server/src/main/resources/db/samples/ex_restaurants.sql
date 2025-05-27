@@ -1431,7 +1431,7 @@ VALUES
 (1429, 'Mathilde_Hand91', 'Une', 15.00, TRUE, FALSE, 'Creative', 43.0177785, 12.7839323, 1397),
 (1430, 'Xzavier_Ziemann', 'Wistèria', 20.00, FALSE, FALSE, 'Contemporary', 45.43566, 12.32682, 1398),
 (1431, 'Amber_Howe', 'Coria', 15.00, FALSE, TRUE, 'Italian Contemporary', 37.5053157, 15.0860216, 1399),
-(1432, 'Lavinia.Gulgowski16', 'Colline Ciociare', 20.00, FALSE, FALSE, 'Cuisine from Lazio', 41.7921649, 13.1806079, 1400),
+(1432, 'Lavinia.Gulgowski16', 'Colline Ciociare', 20.00, FALSE, FALSE, 'Cuisine from Lazio', 37.522982, -122.849167, 1400),
 (1433, 'Barney_Mosciski15', 'Wood', 15.00, TRUE, FALSE, 'Creative', 45.9334388, 7.6294846, 1401),
 (1434, 'Maureen_Brakus1', 'Trattoria da Amerigo', 10.00, TRUE, TRUE, 'Emilian', 44.3903557, 11.0739644, 1402),
 (1435, 'Torey.Kuhn', 'El Molin', 20.00, TRUE, TRUE, 'Alpine', 46.292019, 11.4594756, 1403),

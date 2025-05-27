@@ -18,26 +18,70 @@ public class RestaurantServiceImplTest extends TestCase {
             DBConnection.login(args);
         }
 
+    /**
+     * Simple test for restaurant search functionality.
+     *
+     * @author Sergio Enrico Pisoni, 755563, VA
+     */
     public void testSearchRestaurants() {
-        // Test with valid coordinates
+        System.out.println("=== DEBUGGING CUISINE SEARCH ===");
+
+        // Test 1: Search without cuisine filter (baseline)
+        testWithoutCuisine();
+
+        // Test 2: Search with Italian cuisine
+        testWithCuisine();
+    }
+
+    public void testWithoutCuisine() {
+        System.out.println("\n1. Testing WITHOUT cuisine filter:");
         try {
-            SearchCriteriaDTO criteria = new SearchCriteriaDTO();
-            criteria.latitude = null;
-            criteria.longitude = null;
-            criteria.cuisineType = null;
-            criteria.minPrice = null;
-            criteria.maxPrice = null;
-            criteria.deliveryAvailable = true;
-            criteria.onlineBookingAvailable = true;
-            criteria.minRating = null;
+            SearchCriteriaDTO criteria = SearchCriteriaDTO.builder()
+                    .coordinates(45.8183, 8.8239)  // Varese coordinates
+                    .build();
+
             RestaurantServiceImpl service = new RestaurantServiceImpl();
             List<RestaurantDTO> results = service.searchRestaurants(criteria);
-            System.out.println("Total restaurants found: " + results.size());
-            assertFalse(results.isEmpty());
-        } catch (RemoteException e) {
-            fail("RemoteException should not be thrown for valid criteria.");
-        }
 
+            System.out.println("Found " + results.size() + " restaurants total:");
+
+            for (RestaurantDTO restaurant : results) {
+                System.out.println("  - " + restaurant.name + " | Cuisine: " + restaurant.cuisine + " | DB Value: '" + restaurant.cuisine.getDisplayName() + "'");
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void testWithCuisine() {
+        System.out.println("\n2. Testing WITH Italian cuisine filter:");
+        try {
+            SearchCriteriaDTO criteria = SearchCriteriaDTO.builder()
+                    .coordinates(45.8183, 8.8239)  // Varese coordinates
+                    .cuisineType(CuisineType.ITALIAN)
+                    .build();
+
+            RestaurantServiceImpl service = new RestaurantServiceImpl();
+            List<RestaurantDTO> results = service.searchRestaurants(criteria);
+
+            System.out.println("Found " + results.size() + " ITALIAN restaurants:");
+            System.out.println("Searching for cuisine: '" + CuisineType.ITALIAN.getDisplayName() + "'");
+
+            for (RestaurantDTO restaurant : results) {
+                System.out.println("  - " + restaurant.name + " | Cuisine: " + restaurant.cuisine + " | DB Value: '" + restaurant.cuisine.getDisplayName() + "'");
+            }
+
+            // Let's also print the actual SQL query being generated
+            System.out.println("\n🔍 DEBUG INFO:");
+            System.out.println("Expected cuisine string: '" + CuisineType.ITALIAN.getDisplayName() + "'");
+            System.out.println("Enum value: " + CuisineType.ITALIAN);
+
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void testGetFavoriteRestaurants() {

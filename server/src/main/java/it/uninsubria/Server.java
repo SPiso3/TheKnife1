@@ -2,7 +2,11 @@ package it.uninsubria;
 
 
 import it.uninsubria.dto.UserDTO;
+import it.uninsubria.server_services.RestaurantServiceImpl;
+import it.uninsubria.server_services.ReviewServiceImpl;
 import it.uninsubria.server_services.UserServiceImpl;
+import it.uninsubria.services.RestaurantService;
+import it.uninsubria.services.ReviewService;
 import it.uninsubria.services.UserService;
 
 import java.rmi.RemoteException;
@@ -32,27 +36,20 @@ public class Server
         System.out.println(title);
         DBConnection.login(args);
 
-        // for testing purpose
-        testStuff();
 
         createRMIRegistry();
-
-/*
-        if (DBConnection.closeConnection())
-            System.out.println("Connection closed");
-        else
-            System.out.println("Connection not closed");
-*/
     }
 
     private static void createRMIRegistry() {
         try {
             Registry reg = LocateRegistry.createRegistry(1099);
             UserService userService = new UserServiceImpl();
-            // instanciate other services here
+            RestaurantService restaurantService = new RestaurantServiceImpl();
+            ReviewService reviewService = new ReviewServiceImpl();
 
             reg.rebind("UserService", userService);
-            // bind othere services here
+            reg.rebind("RestaurantService", restaurantService);
+            reg.rebind("ReviewService", reviewService);
 
         }catch (RemoteException e){
             System.err.println(e.getMessage());

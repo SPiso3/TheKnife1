@@ -6,6 +6,8 @@ import it.uninsubria.dto.RestaurantDTO;
 import it.uninsubria.dto.ReviewDTO;
 import it.uninsubria.dto.SearchCriteriaDTO;
 import it.uninsubria.controller.LoginController;
+import it.uninsubria.services.RestaurantService;
+import it.uninsubria.services.UserService;
 import it.uninsubria.session.UserSession;
 import it.uninsubria.utilclient.ClientUtil;
 import javafx.beans.value.ChangeListener;
@@ -20,6 +22,10 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +69,7 @@ public class SearchController {
     private GenericResultsComponent resultsComponent;
 
     private UserSession userSession;
+    private RestaurantService restaurantService;
 
     private ToggleButton[] starButtons;
     private int currentRatingSelection = 1; // Default is 1 star
@@ -76,6 +83,7 @@ public class SearchController {
     private void initialize() {
         setUserSession();
 
+        initServices();
         // Initialize UI
         starButtons = new ToggleButton[]{star1Button, star2Button, star3Button, star4Button, star5Button};
         initializeCuisineTypes();
@@ -84,6 +92,16 @@ public class SearchController {
         initializeResultsComponent();
         // Set default status
         updateStatus("Ready to search");
+    }
+
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            restaurantService= (RestaurantService) registry.lookup("RestaurantService");
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("Error connecting to UserService: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     public void setUserSession() {
@@ -130,8 +148,14 @@ public class SearchController {
 
         // Get restaurant list from utility
         // TODO: Replace with actual RMI call when server is ready
-        // adding criteria build
-        List<RestaurantDTO> restaurants = ClientUtil.getRestaurantList();
+        SearchCriteriaDTO searchCriteria = buildSearchCriteria();
+        List<RestaurantDTO> restaurants = null;
+        try {
+            restaurants = restaurantService.searchRestaurants(searchCriteria);
+        } catch (RemoteException e) {
+            statusLabel.setText("Error searching restaurants");
+            throw new RuntimeException(e);
+        }
 
         // Show results component and update with restaurants
         showResultsPanel();
@@ -161,13 +185,13 @@ public class SearchController {
         double minPrice = minPriceSlider.getValue();
         double maxPrice = maxPriceSlider.getValue();
 
-        // TODO: Get coordinates from user session
-        // For now, use placeholder values
-        double latitude = 45.8183;
-        double longitude = 8.8239;
-
+        double latitude = 0.0;
+        double longitude = 0.0;
         if (userSession != null) {
-            // Get coordinates from session here
+            double[] coord = userSession.getUserCoordinates();
+            latitude = coord != null ? coord[0] : 0.0;
+            longitude = coord != null ? coord[1] : 0.0;
+
         }
 
         // Build search criteria using builder pattern

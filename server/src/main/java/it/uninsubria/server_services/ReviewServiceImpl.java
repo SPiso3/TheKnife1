@@ -5,10 +5,14 @@ import it.uninsubria.dto.ReviewDTO;
 import it.uninsubria.services.ReviewService;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ReviewServiceImpl implements ReviewService {
+public class ReviewServiceImpl extends UnicastRemoteObject implements ReviewService {
+
+    public ReviewServiceImpl() throws RemoteException {}
+
     @Override
     public synchronized List<ReviewDTO> getReviews(String restaurantId) throws RemoteException {
         try {

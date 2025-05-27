@@ -6,9 +6,13 @@ import it.uninsubria.dto.SearchCriteriaDTO;
 import it.uninsubria.services.RestaurantService;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
-public class RestaurantServiceImpl implements RestaurantService {
+public class RestaurantServiceImpl extends UnicastRemoteObject implements RestaurantService {
+
+    public RestaurantServiceImpl() throws RemoteException {}
+
     @Override
     public synchronized List<RestaurantDTO> searchRestaurants(SearchCriteriaDTO criteria) throws RemoteException {
         return RestaurantDAO.searchRestaurants(criteria);
