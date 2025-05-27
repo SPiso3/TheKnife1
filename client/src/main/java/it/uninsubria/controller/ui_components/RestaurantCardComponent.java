@@ -111,12 +111,16 @@ public class RestaurantCardComponent extends VBox {
         ratingBox.setAlignment(Pos.CENTER_LEFT);
 
         // Star rating
-        String stars = "★".repeat(Math.max(0, Math.min(5, (int) Math.round(restaurant.avg_rating)))) +
-                "☆".repeat(Math.max(0, 5 - (int) Math.round(restaurant.avg_rating)));
-        Label starsLabel = new Label(stars);
-        starsLabel.setStyle("-fx-text-fill: #ffc107;");
-
-        // Rating value and count
+        Label starsLabel = new Label();
+        if (restaurant.avg_rating != null) {
+            String stars = "★".repeat(Math.max(0, Math.min(5, (int) Math.round(restaurant.avg_rating)))) +
+                    "☆".repeat(Math.max(0, 5 - (int) Math.round(restaurant.avg_rating)));
+            starsLabel.setText(stars);
+            starsLabel.setStyle("-fx-text-fill: #ffc107;");
+        } else {
+            starsLabel.setText("Rating not available");
+            starsLabel.setStyle("-fx-text-fill: #999999;");
+        }        // Rating value and count
         Label ratingLabel = new Label(String.format("%.1f (%d reviews)",
                 restaurant.avg_rating, restaurant.rating_count));
         ratingLabel.setStyle("-fx-text-fill: #666666; -fx-font-size: 12px;");

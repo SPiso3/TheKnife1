@@ -3,6 +3,7 @@ VALUES
 ('user', 14776, 5, 'Amazing dining experience! The pasta was perfectly cooked and the service was exceptional. The atmosphere was cozy and romantic, perfect for our anniversary dinner.', 'Thank you so much! We''re thrilled you enjoyed your anniversary dinner with us. We look forward to welcoming you back soon!'),
 ('user', 11633, 2, 'Unfortunately, this visit was disappointing. The food took over 45 minutes to arrive and when it did, my steak was overcooked and cold. The server seemed overwhelmed.', 'We sincerely apologize for your disappointing experience. We''ve addressed these issues and would love to make it right.'),
 ('user', 14419, 3, 'Mixed feelings about this place. The sushi was fresh and beautifully presented, but the prices are quite high for the portion sizes and service was slow.', NULL),
+('owner', 14419, 3, 'Mixed feelings about this place. The sushi was fresh and beautifully presented, but the prices are quite high for the portion sizes and service was slow.', NULL),
 ('user', 17130, 4, 'Would definitely recommend for a romantic dinner.', NULL),
 ('Reuben_Walter21', 6228, 3, NULL, NULL),
 ('Graham_Hilll2', 9878, 5, NULL, 'Thank you for the 5-star rating! We appreciate your visit.'),

@@ -2,6 +2,7 @@ package it.uninsubria.controller;
 
 import it.uninsubria.dto.CuisineType;
 import it.uninsubria.dto.RestaurantDTO;
+import it.uninsubria.services.RestaurantService;
 import it.uninsubria.session.UserSession;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +15,10 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,31 +30,28 @@ import java.util.logging.Logger;
  * @author Sergio Enrico Pisoni, 755563, VA
  */
 public class AddRestaurantController {
-
     private static final Logger LOGGER = Logger.getLogger(AddRestaurantController.class.getName());
 
     // Restaurant information fields
     @FXML private TextField nameField;
     @FXML private ComboBox<CuisineType> cuisineTypeComboBox;
     @FXML private TextField avgPriceField;
-
     // Location information fields
     @FXML private TextField nationField;
     @FXML private TextField cityField;
     @FXML private TextField addressField;
     @FXML private TextField latitudeField;
     @FXML private TextField longitudeField;
-
     // Services checkboxes
     @FXML private CheckBox deliveryCheckBox;
     @FXML private CheckBox onlineBookingCheckBox;
-
     // Buttons and messages
     @FXML private Button cancelButton;
     @FXML private Button submitButton;
     @FXML private Label errorLabel;
 
     private UserSession userSession;
+    private RestaurantService restaurantService;
 
     /**
      * Initializes the controller.
@@ -59,14 +61,26 @@ public class AddRestaurantController {
     private void initialize() {
         userSession = UserSession.getInstance();
 
+        initServices();
+
         // Initialize UI
         errorLabel.setText("");
         initializeCuisineTypes();
 
-        // Check if user is authorized (should be restaurant owner)
+        // not needed necessarily
         if (!userSession.isLoggedIn() || !userSession.isOwner()) {
             handleCancel();
             return;
+        }
+    }
+
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            restaurantService = (RestaurantService) registry.lookup("RestaurantService");
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("Error connecting to UserService: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -80,19 +94,13 @@ public class AddRestaurantController {
         errorLabel.setText("");
 
         // Validate required fields
-        if (!validateRequiredFields()) {
-            return;
-        }
-
-        if (!validateNumericFields()) {
-            return;
-        }
+        if (!validateRequiredFields()) { return; }
+        if (!validateNumericFields()) { return; }
 
         // Build restaurant DTO
         RestaurantDTO restaurantDTO = buildRestaurantDTO();
 
         try {
-            // TODO: Replace with actual RMI call to RestaurantService.createRestaurant()
             handleRestaurantSubmission(restaurantDTO);
 
             // Show success message
@@ -113,6 +121,42 @@ public class AddRestaurantController {
             alert.setHeaderText("Error during registration");
             alert.setContentText("We are sorry for the inconvenience. Please try again later.");
             alert.showAndWait();
+        }
+    }
+
+    /**
+     * Builds a RestaurantDTO object from the current form inputs.
+     *
+     * @return A RestaurantDTO with the form data
+     */
+    private RestaurantDTO buildRestaurantDTO() {
+        String name = nameField.getText().trim();
+        String nation = nationField.getText().trim();
+        String city = cityField.getText().trim();
+        String address = addressField.getText().trim();
+        Double latitude = Double.parseDouble(latitudeField.getText().trim());
+        Double longitude = Double.parseDouble(longitudeField.getText().trim());
+        Double avgPrice = Double.parseDouble(avgPriceField.getText().trim());
+        Boolean delivery = deliveryCheckBox.isSelected();
+        Boolean onlineBooking = onlineBookingCheckBox.isSelected();
+        CuisineType cuisine = cuisineTypeComboBox.getValue();
+        String ownerUsrId = userSession.getUserId();
+
+        return new RestaurantDTO(name, nation, city, address, latitude, longitude,
+                avgPrice, delivery, onlineBooking, cuisine, ownerUsrId);
+    }
+
+    /**
+     * Handles submitting the restaurant data to the server.
+     *
+     * @param restaurant The restaurant data to submit
+     */
+    private void handleRestaurantSubmission(RestaurantDTO restaurant) {
+        try {
+            RestaurantDTO created = restaurantService.createRestaurant(restaurant, userSession.getUserId());
+            System.out.println("Restaurant created with id: " + created.id);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -145,49 +189,6 @@ public class AddRestaurantController {
     }
 
     /**
-     * Builds a RestaurantDTO object from the current form inputs.
-     *
-     * @return A RestaurantDTO with the form data
-     */
-    private RestaurantDTO buildRestaurantDTO() {
-        String name = nameField.getText().trim();
-        String nation = nationField.getText().trim();
-        String city = cityField.getText().trim();
-        String address = addressField.getText().trim();
-        Double latitude = Double.parseDouble(latitudeField.getText().trim());
-        Double longitude = Double.parseDouble(longitudeField.getText().trim());
-        Double avgPrice = Double.parseDouble(avgPriceField.getText().trim());
-        Boolean delivery = deliveryCheckBox.isSelected();
-        Boolean onlineBooking = onlineBookingCheckBox.isSelected();
-        CuisineType cuisine = cuisineTypeComboBox.getValue();
-        String ownerUsrId = userSession.getUserId();
-
-        return new RestaurantDTO(name, nation, city, address, latitude, longitude,
-                avgPrice, delivery, onlineBooking, cuisine, ownerUsrId);
-    }
-
-    /**
-     * Handles submitting the restaurant data to the server.
-     * TODO: Replace with actual RMI call to RestaurantService.createRestaurant()
-     *
-     * @param restaurant The restaurant data to submit
-     */
-    private void handleRestaurantSubmission(RestaurantDTO restaurant) {
-        System.out.println("=== RESTAURANT REGISTRATION SUBMISSION ===");
-        System.out.println("Owner ID: " + userSession.getUserId());
-        System.out.println("Restaurant Name: " + restaurant.name);
-        System.out.println("Cuisine: " + restaurant.cuisine.getDisplayName());
-        System.out.println("Coordinates: " + restaurant.latitude + ", " + restaurant.longitude);
-        System.out.println("Average Price: €" + restaurant.avg_price);
-        System.out.println("Delivery: " + restaurant.delivery);
-        System.out.println("Online Booking: " + restaurant.online_booking);
-        System.out.println("Restaurant DTO: " + restaurant.toString());
-        System.out.println("==========================================");
-
-        LOGGER.info("Restaurant registered successfully: " + restaurant.name + " by owner: " + userSession.getUserId());
-    }
-
-    /**
      * Validates that all required fields are filled.
      *
      * @return true if all required fields are valid, false otherwise
@@ -199,36 +200,28 @@ public class AddRestaurantController {
         if (nameField.getText().trim().isEmpty()) {
             errors.append("Restaurant name is required.\n");
         }
-
         if (cuisineTypeComboBox.getValue() == null) {
             errors.append("Cuisine type is required.\n");
         }
-
         if (avgPriceField.getText().trim().isEmpty()) {
             errors.append("Average price is required.\n");
         }
-
         // Check location information
         if (nationField.getText().trim().isEmpty()) {
             errors.append("Country is required.\n");
         }
-
         if (cityField.getText().trim().isEmpty()) {
             errors.append("City is required.\n");
         }
-
         if (addressField.getText().trim().isEmpty()) {
             errors.append("Street address is required.\n");
         }
-
         if (latitudeField.getText().trim().isEmpty()) {
             errors.append("Latitude is required.\n");
         }
-
         if (longitudeField.getText().trim().isEmpty()) {
             errors.append("Longitude is required.\n");
         }
-
         // Display error message if any required fields are missing
         if (errors.length() > 0) {
             errorLabel.setText(errors.toString());
@@ -245,7 +238,6 @@ public class AddRestaurantController {
      */
     private boolean validateNumericFields() {
         StringBuilder errors = new StringBuilder();
-
         // Validate average price
         try {
             double avgPrice = Double.parseDouble(avgPriceField.getText().trim());
@@ -255,8 +247,7 @@ public class AddRestaurantController {
         } catch (NumberFormatException e) {
             errors.append("Average price must be a valid number.\n");
         }
-
-        // Validate latitude
+        // Validate location coordinates
         try {
             double latitude = Double.parseDouble(latitudeField.getText().trim());
             if (latitude < -90 || latitude > 90) {
@@ -265,8 +256,6 @@ public class AddRestaurantController {
         } catch (NumberFormatException e) {
             errors.append("Latitude must be a valid number.\n");
         }
-
-        // Validate longitude
         try {
             double longitude = Double.parseDouble(longitudeField.getText().trim());
             if (longitude < -180 || longitude > 180) {
@@ -275,7 +264,6 @@ public class AddRestaurantController {
         } catch (NumberFormatException e) {
             errors.append("Longitude must be a valid number.\n");
         }
-
         // Display error message if any numeric fields are invalid
         if (errors.length() > 0) {
             errorLabel.setText(errors.toString());
@@ -312,14 +300,5 @@ public class AddRestaurantController {
 
         // Set prompt text
         cuisineTypeComboBox.setPromptText("Select cuisine type");
-    }
-
-    /**
-     * Gets the current user session.
-     *
-     * @return The current UserSession instance
-     */
-    public UserSession getUserSession() {
-        return userSession;
     }
 }

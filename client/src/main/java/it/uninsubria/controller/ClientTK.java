@@ -41,9 +41,6 @@ public class ClientTK extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
         Parent root = loader.load();
 
-        // Get the login controller and set the user session
-//        LoginController loginController = loader.getController();
-
         // Set up the primary stage
         primaryStage.setTitle("TheKnife - Login");
         primaryStage.setScene(new Scene(root));

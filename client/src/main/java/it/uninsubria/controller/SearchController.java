@@ -146,8 +146,7 @@ public class SearchController {
     private void handleSearch() {
         updateStatus("Searching...");
 
-        // Get restaurant list from utility
-        // TODO: Replace with actual RMI call when server is ready
+        // use service to get results
         SearchCriteriaDTO searchCriteria = buildSearchCriteria();
         List<RestaurantDTO> restaurants = null;
         try {

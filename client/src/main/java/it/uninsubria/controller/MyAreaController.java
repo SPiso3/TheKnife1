@@ -2,6 +2,7 @@ package it.uninsubria.controller;
 
 import it.uninsubria.controller.ui_components.GenericResultsComponent;
 import it.uninsubria.dto.RestaurantDTO;
+import it.uninsubria.services.RestaurantService;
 import it.uninsubria.session.UserSession;
 import it.uninsubria.utilclient.ClientUtil;
 import javafx.fxml.FXML;
@@ -15,6 +16,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -56,6 +61,7 @@ public class MyAreaController {
     private UserSession userSession;
     private GenericResultsComponent leftResultsComponent;
     private GenericResultsComponent rightResultsComponent;
+    private RestaurantService restaurantService;
 
     /**
      * Initializes the controller.
@@ -65,6 +71,7 @@ public class MyAreaController {
     private void initialize() {
         userSession = UserSession.getInstance();
 
+        initServices();
         // Initialize result components
         initializeResultComponents();
 
@@ -73,6 +80,16 @@ public class MyAreaController {
 
         // Load user data
         loadUserData();
+    }
+
+    private void initServices() {
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            restaurantService = (RestaurantService) registry.lookup("RestaurantService");
+        } catch (NotBoundException | RemoteException e) {
+            System.err.println("Error connecting to UserService: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -96,7 +113,7 @@ public class MyAreaController {
      * Sets up the user interface based on the user's role.
      */
     private void setupUserInterface() {
-        if (!userSession.isLoggedIn()) {
+        if (!userSession.isLoggedIn()) { //not necessary
             handleBackToSearch();
             return;
         }
@@ -160,13 +177,23 @@ public class MyAreaController {
         String userId = userSession.getUserId();
 
         // Load favorite restaurants
-        // TODO: Replace with actual RMI call to RestaurantService.getFavoriteRestaurants(userId)
-        List<RestaurantDTO> favoriteRestaurants = getMockFavoriteRestaurants();
+        List<RestaurantDTO> favoriteRestaurants = null;
+        try {
+            favoriteRestaurants = restaurantService.getFavoriteRestaurants(userId);
+        } catch (RemoteException e) {
+            statusLabel.setText("Error loading favorite restaurants");
+            throw new RuntimeException(e);
+        }
         leftResultsComponent.showRestaurants(favoriteRestaurants);
 
-        // Load reviewed restaurants
-        // TODO: Replace with actual RMI call to RestaurantService.getReviewedRestaurants(userId)
-        List<RestaurantDTO> reviewedRestaurants = getMockReviewedRestaurants();
+        // Load reviewed
+        List<RestaurantDTO> reviewedRestaurants = null;
+        try {
+            reviewedRestaurants = restaurantService.getReviewedRestaurants(userId);
+        } catch (RemoteException e) {
+            statusLabel.setText("Error loading review restaurants");
+            throw new RuntimeException(e);
+        }
         rightResultsComponent.showRestaurants(reviewedRestaurants);
 
         // Update statistics labels
@@ -182,14 +209,24 @@ public class MyAreaController {
     private void loadRestaurateurData() {
         String userId = userSession.getUserId();
 
-        // Load owned restaurants
-        // TODO: Replace with actual RMI call to RestaurantService.getOwnedRestaurants(userId)
-        List<RestaurantDTO> ownedRestaurants = getMockOwnedRestaurants();
+        // Load owned
+        List<RestaurantDTO> ownedRestaurants = null;
+        try {
+            ownedRestaurants = restaurantService.getOwnedRestaurants(userId);
+        } catch (RemoteException e) {
+            statusLabel.setText("Error loading review restaurants");
+            throw new RuntimeException(e);
+        }
         leftResultsComponent.showRestaurants(ownedRestaurants);
 
-        // Load reviewed restaurants (restaurateurs can also review other restaurants)
-        // TODO: Replace with actual RMI call to RestaurantService.getReviewedRestaurants(userId)
-        List<RestaurantDTO> reviewedRestaurants = getMockReviewedRestaurants();
+        // Load reviewed
+        List<RestaurantDTO> reviewedRestaurants = null;
+        try {
+            reviewedRestaurants = restaurantService.getReviewedRestaurants(userId);
+        } catch (RemoteException e) {
+            statusLabel.setText("Error loading review restaurants");
+            throw new RuntimeException(e);
+        }
         rightResultsComponent.showRestaurants(reviewedRestaurants);
 
         // Update statistics labels
