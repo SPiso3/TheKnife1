@@ -87,8 +87,11 @@ public class RestaurantServiceImplTest extends TestCase {
     public void testGetFavoriteRestaurants() {
         try {
             RestaurantServiceImpl service = new RestaurantServiceImpl();
-            List<RestaurantDTO> favorites = service.getFavoriteRestaurants("Aiden56");
+            List<RestaurantDTO> favorites = service.getFavoriteRestaurants("user");
             System.out.println("Total favorite restaurants found: " + favorites.size());
+            for (RestaurantDTO restaurant : favorites) {
+                System.out.println(restaurant);
+            }
             assertFalse(favorites.isEmpty());
         } catch (RemoteException e) {
             fail("RemoteException should not be thrown when fetching favorite restaurants.");
@@ -98,7 +101,7 @@ public class RestaurantServiceImplTest extends TestCase {
     public void testGetOwnedRestaurants() {
         try {
             RestaurantServiceImpl service = new RestaurantServiceImpl();
-            List<RestaurantDTO> ownedRestaurants = service.getOwnedRestaurants("Jo_Schaefer6");
+            List<RestaurantDTO> ownedRestaurants = service.getOwnedRestaurants("owner");
             System.out.println("Total owned restaurants found: " + ownedRestaurants.size());
             assertFalse(ownedRestaurants.isEmpty());
             for (RestaurantDTO restaurant : ownedRestaurants) {
@@ -113,7 +116,7 @@ public class RestaurantServiceImplTest extends TestCase {
     public void testGetReviewedRestaurants() {
         try {
             RestaurantServiceImpl service = new RestaurantServiceImpl();
-            List<RestaurantDTO> reviewedRestaurants = service.getReviewedRestaurants("Alexanne30");
+            List<RestaurantDTO> reviewedRestaurants = service.getReviewedRestaurants("user");
             System.out.println("Total reviewed restaurants found: " + reviewedRestaurants.size());
             assertFalse(reviewedRestaurants.isEmpty());
             for (RestaurantDTO restaurant : reviewedRestaurants) {

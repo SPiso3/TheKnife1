@@ -1,6 +1,9 @@
 INSERT INTO Favorites (username, restaurant_id)
 VALUES
 ('Aiden56', 6438),
+('user', 6438),
+('user', 1543),
+('user', 10384),
 ('Alene57', 1543),
 ('Makenna_Spinka-Kerluke28', 1207),
 ('Karelle.Rutherford', 10384),

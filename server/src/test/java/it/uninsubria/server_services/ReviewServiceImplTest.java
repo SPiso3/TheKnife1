@@ -16,7 +16,7 @@ public class ReviewServiceImplTest extends TestCase {
 
     public void testGetReviews() {
         // Test case for getting reviews of a restaurant
-        String restaurantId = "4639"; // Example restaurant ID
+        String restaurantId = "17130"; // Example restaurant ID
         try {
             ReviewServiceImpl service = new ReviewServiceImpl();
             List<ReviewDTO> reviews = service.getReviews(restaurantId);

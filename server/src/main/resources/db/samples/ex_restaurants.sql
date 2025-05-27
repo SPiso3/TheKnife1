@@ -17126,4 +17126,11 @@ VALUES
 (17124, 'Arnoldo.Von', 'Kampa Park', 15.00, TRUE, TRUE, 'Modern Cuisine', 50.0870377, 14.4089916, 16174),
 (17125, 'Jovani66', 'La Veranda', 10.00, TRUE, TRUE, 'Mediterranean Cuisine', 50.090262, 14.419907, 16175),
 (17126, 'Cecilia.Witting', 'Bockem', 15.00, TRUE, TRUE, 'Czech', 50.0774137, 14.4052823, 16176),
-(17127, 'Joshua_Anderson70', 'Aromi', 15.00, FALSE, FALSE, 'Italian', 50.0762171, 14.4364881, 16177);
+(17127, 'Joshua_Anderson70', 'Aromi', 15.00, FALSE, FALSE, 'Italian', 50.0762171, 14.4364881, 16177),
+-- Additional restaurants with owner = 'owner'
+
+(17128, 'owner', 'Osteria del Porto', 35.00, TRUE, TRUE, 'Italian', 50.0801234, 14.4201567, 16177),
+(17129, 'owner', 'Golden Dragon', 28.00, TRUE, FALSE, 'Chinese', 50.0756789, 14.4156432, 16176),
+(17130, 'owner', 'Le Petit Bistro', 42.00, FALSE, TRUE, 'French', 50.0834567, 14.4098765, 16175),
+(17131, 'owner', 'Sakura Sushi Bar', 38.00, TRUE, TRUE, 'Japanese', 50.0789012, 14.4187654, 16174),
+(17132, 'owner', 'Tapas y Vino', 32.00, TRUE, FALSE, 'Spanish', 50.0867890, 14.4234567, 16173);
