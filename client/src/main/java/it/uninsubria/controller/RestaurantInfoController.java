@@ -6,10 +6,16 @@ import it.uninsubria.dto.ReviewDTO;
 import it.uninsubria.session.UserSession;
 import it.uninsubria.utilclient.ClientUtil;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -201,7 +207,7 @@ public class RestaurantInfoController {
 
         boolean isLoggedIn = userSession.isLoggedIn();
         boolean isClient = userSession.isClient();
-        boolean isOwner = userSession.isRestaurateur();
+        boolean isOwner = userSession.isOwner();
         boolean isRestaurantOwner = isOwner && restaurant.owner_usrId.equals(userSession.getUserId());
 
         // Add to Favorites: Only visible to clients
@@ -240,6 +246,7 @@ public class RestaurantInfoController {
 
     /**
      * Handles the "Add Review" button action.
+     * Opens the add review window for writing a new review.
      */
     @FXML
     private void handleAddReview() {
@@ -247,20 +254,100 @@ public class RestaurantInfoController {
             return;
         }
 
-        // TODO: Open add review scene/dialog
-        LOGGER.info("Opening add review for restaurant: " + restaurant.name);
-        System.out.println("Add review clicked for restaurant: " + restaurant.name);
+        try {
+            // Load the add review FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("add-review-view.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and set it for review mode
+            AddReviewController controller = loader.getController();
+            controller.setForReview(restaurant);
+
+            // Create modal stage for add review
+            Stage reviewStage = new Stage();
+            reviewStage.setTitle("Write Review - " + restaurant.name);
+            reviewStage.setScene(new Scene(root));
+
+            // Set window properties
+            reviewStage.setResizable(false);
+            reviewStage.initModality(Modality.WINDOW_MODAL);
+            reviewStage.initOwner(addReviewButton.getScene().getWindow());
+
+            // Show the window (modal) and wait for it to close
+            reviewStage.showAndWait();
+
+            // TODO: When RMI is implemented, the review will be submitted to server
+            // After the window closes, refresh reviews to show the new review
+            loadReviews();
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error loading add review view", e);
+        }
     }
 
     /**
      * Handles clicking on a review card.
+     * For restaurant owners, opens reply window. For others, just logs the click.
      *
      * @param review The clicked review
      */
     private void handleReviewClick(ReviewDTO review) {
-        // TODO: Implement review detail view or editing
-        LOGGER.info("Review clicked: " + review.usr_id + " - " + review.rating + " stars");
-        System.out.println("Review clicked: " + review.usr_id + " - " + review.rating + " stars");
+        if (!userSession.isLoggedIn()) {
+            return;
+        }
+
+        // Check if current user is the restaurant owner
+        boolean isRestaurantOwner = userSession.isOwner() &&
+                restaurant.owner_usrId.equals(userSession.getUserId());
+
+        if (isRestaurantOwner) {
+            openReplyWindow(review);
+        } else {
+            // For non-owners, just log the click (future: could open review detail view)
+            LOGGER.info("Review clicked: " + review.usr_id + " - " + review.rating + " stars");
+            System.out.println("Review clicked: " + review.usr_id + " - " + review.rating + " stars");
+        }
+    }
+
+    /**
+     * Opens the reply window for a restaurant owner to reply to a review as a modal window.
+     *
+     * @param review The review to reply to
+     */
+    private void openReplyWindow(ReviewDTO review) {
+        try {
+            // Load the add reply FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("add-reply-view.fxml"));
+            Parent root = loader.load();
+
+            // Get the controller and set the review
+            AddReplyController controller = loader.getController();
+            controller.setReview(review);
+
+            // Create modal stage for reply
+            Stage replyStage = new Stage();
+            replyStage.setTitle("Reply to Review - " + restaurant.name);
+            replyStage.setScene(new Scene(root));
+
+            // Set window properties for proper modal behavior
+            replyStage.setResizable(false);
+            replyStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            replyStage.initOwner(addReviewButton.getScene().getWindow());
+
+            // Center the modal window relative to parent
+            Stage parentStage = (Stage) addReviewButton.getScene().getWindow();
+            replyStage.setX(parentStage.getX() + (parentStage.getWidth() - 650) / 2);
+            replyStage.setY(parentStage.getY() + (parentStage.getHeight() - 550) / 2);
+
+            // Show the window (modal) and wait for it to close
+            replyStage.showAndWait();
+
+            // After the window closes, refresh reviews to show the updated reply
+            loadReviews();
+
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error loading reply view", e);
+        }
     }
 
     /**

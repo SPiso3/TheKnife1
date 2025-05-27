@@ -27,7 +27,7 @@ public class ClientUtil {
 
         // Mock restaurant 1
         RestaurantDTO restaurant1 = new RestaurantDTO("1", "Osteria del Borgo", "Italy", "Varese", "Via Roma 15",
-                45.8206, 8.8257, 35.0, 127, 4.2, true, true, CuisineType.ITALIAN, "owner1");
+                45.8206, 8.8257, 35.0, 127, 4.2, true, true, CuisineType.ITALIAN, "owner");
         restaurants.add(restaurant1);
 
         // Mock restaurant 2

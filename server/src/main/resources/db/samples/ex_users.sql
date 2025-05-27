@@ -1,7 +1,7 @@
 INSERT INTO Users ( username, h_password, name, surname, birth_date, role, latitude, longitude, address_id )
 VALUES
 ('user', 'psw1', 'Mario', 'Rossi', '1951-10-18', 'client', 37.522982, -122.849167, 68),
-('owner', 'psw1', 'Giuseppe', 'Verdi', '1960-10-18', 'owner', 37.522982, -122.849167, 68),
+('owner', 'psw1', 'Giuseppe', 'Verdi', '1960-10-18', 'owner', 29.385345, 17.713047, 68),
 ('Ophelia37', 'kesuzeqako', 'Davion', 'Turcotte', '1951-10-18', 'owner', 37.522982, -122.849167, 13),
 ('Toney6', 'gazajewete', 'Shad', 'Ryan', '1954-05-25', 'client', 59.850963, 25.283742, 59),
 ('Zion.Schroeder', 'lahopiduce', 'Kennith', 'Skiles', '1946-11-02', 'client', 40.792418, -73.597707, 93),

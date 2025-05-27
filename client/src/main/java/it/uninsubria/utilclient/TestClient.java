@@ -81,7 +81,7 @@ public class TestClient {
         }
 
         // Test user role checks
-        if (session1.isClient() && !session1.isRestaurateur()) {
+        if (session1.isClient() && !session1.isOwner()) {
             System.out.println("User role check test passed!");
         } else {
             System.err.println("User role check test failed!");
@@ -135,7 +135,7 @@ public class TestClient {
 
         session1.login(restaurateur);
 
-        if (session1.isRestaurateur() && !session1.isClient()) {
+        if (session1.isOwner() && !session1.isClient()) {
             System.out.println("Restaurateur role check test passed!");
         } else {
             System.err.println("Restaurateur role check test failed!");

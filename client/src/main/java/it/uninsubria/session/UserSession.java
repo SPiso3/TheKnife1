@@ -75,7 +75,7 @@ public class UserSession {
      *
      * @return true if the current user is a restaurateur, false otherwise
      */
-    public boolean isRestaurateur() {
+    public boolean isOwner() {
         return isLoggedIn && currentUser != null &&
                 "owner".equalsIgnoreCase(currentUser.getRole());
     }

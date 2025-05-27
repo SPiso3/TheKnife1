@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="450.0" minWidth="550.0" prefHeight="550.0" prefWidth="650.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.uninsubria.controller.AddReplyController">
+    <children>
+        <!-- Header -->
+        <VBox spacing="5.0">
+            <children>
+                <Label text="Reply to Review" textFill="#1a73e8">
+                    <font>
+                        <Font name="System Bold" size="20.0" />
+                    </font>
+                </Label>
+                <Label fx:id="restaurantNameLabel" text="Restaurant Name" textFill="#666666">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+            </children>
+        </VBox>
+
+        <!-- Original Review Display -->
+        <VBox prefHeight="257.0" prefWidth="600.0" spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8;">
+            <children>
+                <Label text="Customer Review" textFill="#333333">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+
+                <!-- Customer Info and Rating -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <Label fx:id="customerNameLabel" text="Customer Name" textFill="#333333">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_LEFT" spacing="5.0">
+                            <children>
+                                <Label fx:id="ratingStarsLabel" text="★★★★☆" textFill="#ffc107">
+                                    <font>
+                                        <Font size="16.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="ratingLabel" text="(4/5)" textFill="#666666">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <!-- Customer Review Text -->
+                <VBox spacing="5.0">
+                    <children>
+                        <Label text="Review:" textFill="#555555">
+                            <font>
+                                <Font name="System Bold" size="13.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="customerReviewLabel" text="Customer review text will appear here..." textFill="#333333" wrapText="true">
+                            <font>
+                                <Font size="13.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+        </VBox>
+
+        <Separator />
+
+        <!-- Error Label -->
+        <Label fx:id="errorLabel" textFill="#d32f2f" visible="false">
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font>
+        </Label>
+
+        <!-- Reply Text Section -->
+        <VBox prefHeight="203.0" prefWidth="600.0" spacing="10.0" VBox.vgrow="ALWAYS">
+            <children>
+                <Label text="Your Reply">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <TextArea fx:id="replyTextArea" maxHeight="1.7976931348623157E308" prefRowCount="6" promptText="Write your response to this review..." wrapText="true" VBox.vgrow="ALWAYS">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </TextArea>
+                <Label fx:id="characterCountLabel" text="0 characters" textFill="#666666">
+                    <font>
+                        <Font size="12.0" />
+                    </font>
+                </Label>
+            </children>
+        </VBox>
+
+        <!-- Action Buttons -->
+        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+            <children>
+                <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" prefHeight="35.0" prefWidth="100.0" text="Cancel" />
+                <Button fx:id="submitButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSubmit" prefHeight="35.0" prefWidth="120.0" text="Submit Reply">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+            </children>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+    </padding>
+</VBox>
