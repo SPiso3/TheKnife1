@@ -1,5 +1,5 @@
-module it.uninsubria.server {
-    requires it.uninsubria.common;
+module server {
+    requires common;
     requires java.rmi;
     requires java.sql;
 }

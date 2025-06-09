@@ -1,5 +1,5 @@
-module it.uninsubria.client {
-    requires it.uninsubria.common;
+module client {
+    requires common;
     requires javafx.controls;
     requires javafx.fxml;
 

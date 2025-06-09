@@ -1,0 +1,14 @@
+module:client
+it.uninsubria.controller
+it.uninsubria.controller.ui_components
+it.uninsubria.session
+it.uninsubria.utilclient
+module:common
+it.uninsubria.dto
+it.uninsubria.exceptions
+it.uninsubria.services
+it.uninsubria.utilcommon
+module:server
+it.uninsubria
+it.uninsubria.dao
+it.uninsubria.server_services

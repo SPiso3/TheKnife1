@@ -1,4 +1,4 @@
-module it.uninsubria.common {
+module common {
     exports it.uninsubria.dto;
     exports it.uninsubria.services;
     exports it.uninsubria.exceptions;
